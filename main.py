@@ -44,7 +44,8 @@ def display_menu():
     table.add_row("2", "Process I85 Corridor Listings")
     table.add_row("3", "Process Florida Listings")
     table.add_row("4", "Fetch Additional Data")
-    table.add_row("5", "[yellow]Exit[/yellow]")
+    table.add_row("5", "Get Distance Data from Google")
+    table.add_row("6", "[yellow]Exit[/yellow]")
 
     # Display the menu in a panel
     console.print(Panel(table, title="[bold]Available Options[/bold]", border_style="cyan"))
@@ -76,6 +77,7 @@ async def main():
     try:
         from modules.datasubmition.process_listings import process_listings
         from modules.scraping.fetch import main as fetch_main
+        from modules.googledistance.walmart_distance import main as walmart_distance_main
         
         while True:
             clear_screen()
@@ -84,7 +86,7 @@ async def main():
             
             choice = Prompt.ask(
                 "\nPlease select an option",
-                choices=["1", "2", "3", "4", "5"],
+                choices=["1", "2", "3", "4", "5", "6"],
                 show_choices=False
             )
             
@@ -114,6 +116,21 @@ async def main():
                 input()
             
             elif choice == "5":
+                clear_screen()
+                display_header()
+                console.print("[cyan]Getting distance data from Google for all listings...[/cyan]")
+                
+                try:
+                    await walmart_distance_main()
+                    console.print("\n[bold green]Distance data fetching completed![/bold green]")
+                except Exception as e:
+                    console.print(f"\n[red]Error fetching distance data: {str(e)}[/red]")
+                
+                # Pause before returning to menu
+                console.print("\n[bold green]Press Enter to return to the main menu...[/bold green]")
+                input()
+            
+            elif choice == "6":
                 clear_screen()
                 console.print(Panel.fit(
                     "[bold green]Thank you for using ADLA![/bold green]\n[italic]Have a great day![/italic]",
