@@ -72,7 +72,7 @@ def display_processing_status(market):
         )
         process_listings(market=market)
 
-async def main():
+def main():
     """Main entry point for the ADLA system."""
     try:
         from modules.datasubmition.process_listings import process_listings
@@ -106,7 +106,7 @@ async def main():
                 console.print("[cyan]Fetching additional census data for all listings...[/cyan]")
                 
                 try:
-                    await fetch_main()
+                    fetch_main()
                     console.print("\n[bold green]Census data fetching completed![/bold green]")
                 except Exception as e:
                     console.print(f"\n[red]Error fetching census data: {str(e)}[/red]")
@@ -121,7 +121,7 @@ async def main():
                 console.print("[cyan]Getting distance data from Google for all listings...[/cyan]")
                 
                 try:
-                    await walmart_distance_main()
+                    walmart_distance_main()
                     console.print("\n[bold green]Distance data fetching completed![/bold green]")
                 except Exception as e:
                     console.print(f"\n[red]Error fetching distance data: {str(e)}[/red]")
@@ -148,5 +148,4 @@ async def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    main()

@@ -22,7 +22,7 @@ DISTANCE_API_URL = "https://maps.googleapis.com/maps/api/distancematrix/json"
 def ensure_api_key():
     """Return the hard-coded Google Maps API key."""
     # Hard-coded API key as requested
-    api_key = "" #Put the API key here
+    api_key = "AIzaSyCJ5VoXhi5iW9axeSxKUPYUZK0oM-1YBOM" #Put the API key here
     console.print("[green]Using hard-coded Google Maps API key[/green]")
     return api_key
 
@@ -121,7 +121,7 @@ def update_master_csv(df, row_index, walmart_data, travel_data):
         console.print(f"[red]Error updating master CSV: {e}[/red]")
         return False
 
-async def main():
+def main():
     """Main function to process all rows in the CSV."""
     console.clear()
     console.print("[bold blue]Walmart Distance Finder[/bold blue]")
@@ -188,7 +188,6 @@ async def main():
             time.sleep(0.5)
     
     console.print("\n[green]Walmart distance data processing completed![/green]")
-    
+
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main()) 
+    main() 

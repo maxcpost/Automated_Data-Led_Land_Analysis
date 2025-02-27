@@ -341,47 +341,60 @@ def update_master_csv(data, row_index):
     except Exception as e:
         print(f"Error updating master CSV: {e}")
 
-async def main():
+def process_existing_or_fetch_new(latitude, longitude, row_index):
+    """Process existing CSV or fetch new data if needed."""
+    # First check for existing CSV
+    existing_csv = find_existing_csv(latitude, longitude)
+    
+    if existing_csv:
+        print(f"Found existing CSV for coordinates {latitude}, {longitude}")
+        data = extract_data_from_csv(existing_csv)
+        if data:
+            data['latitude'] = latitude
+            data['longitude'] = longitude
+            update_master_csv(data, row_index)
+            return data
+        else:
+            print("Failed to extract data from existing CSV, will fetch new data")
+    
+    # If no existing CSV or failed to extract data, fetch new data
+    print(f"Fetching new data for coordinates {latitude}, {longitude}")
+    data = fetch_census_data(latitude, longitude)
+    
+    if data:
+        # Update master CSV
+        update_master_csv(data, row_index)
+        return data
+    else:
+        print(f"Failed to fetch data for row {row_index}")
+        return None
+
+def main():
     """Main function to process all rows in the CSV."""
-    # Get all rows from the CSV
     df = read_master_csv()
     if df is None:
         print("Error reading CSV file")
         return
     
-    print(f"Processing {len(df)} rows")
+    total = 0
+    processed = 0
     
-    # Process each row
     for index, row in df.iterrows():
-        print(f"\nProcessing row {index}: {row['Property Address']}, {row['City']}, {row['State']}")
+        latitude = row['Latitude']
+        longitude = row['Longitude']
         
-        # First check for existing CSV
-        existing_csv = find_existing_csv(row['Latitude'], row['Longitude'])
-        
-        if existing_csv:
-            print(f"Found existing CSV for coordinates {row['Latitude']}, {row['Longitude']}")
-            data = extract_data_from_csv(existing_csv)
+        # Process this row if it has coordinates and doesn't have census data yet
+        if not pd.isna(latitude) and not pd.isna(longitude):
+            total += 1
+            
+            # Check for existing files first
+            data = process_existing_or_fetch_new(latitude, longitude, index)
             if data:
-                data['latitude'] = row['Latitude']
-                data['longitude'] = row['Longitude']
-                update_master_csv(data, index)
-                continue
-            else:
-                print("Failed to extract data from existing CSV, will fetch new data")
-        
-        # If no existing CSV or failed to extract data, fetch new data
-        print(f"Fetching new data for coordinates {row['Latitude']}, {row['Longitude']}")
-        data = fetch_census_data(row['Latitude'], row['Longitude'])
-        
-        if data:
-            # Update master CSV
-            update_master_csv(data, index)
-        else:
-            print(f"Failed to fetch data for row {index}")
-        
-        # Wait between requests to avoid overwhelming the server
-        time.sleep(2)
+                processed += 1
+                print(f"Census data added for listing {index+1}")
+    
+    print(f"\nProcessed {processed} out of {total} listings with coordinates")
+    print("Census data fetching completed")
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    main()
