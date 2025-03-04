@@ -1,48 +1,52 @@
+import pandas as pd
+import time
+import os
+import glob
+import traceback
+from datetime import datetime
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-import pandas as pd
-import time
-import os
-from datetime import datetime
-import requests
-import glob
+from rich.console import Console
+from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, TimeElapsedColumn
+
+# Initialize Rich console for output
+console = Console()
+
+# Path to the directory for storing MCDC files
+MCDC_DIR = "database/MCDC"
 
 def ensure_directory_exists(directory):
-    """Create directory if it doesn't exist."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    os.makedirs(directory, exist_ok=True)
 
 def read_master_csv():
-    """Read the master CSV file."""
     try:
-        return pd.read_csv('database/master.csv')
+        return pd.read_csv("database/master.csv")
     except Exception as e:
         print(f"Error reading master CSV: {e}")
         return None
 
 def find_existing_csv(latitude, longitude):
-    """Find existing CSV file for given coordinates."""
-    mcdc_dir = os.path.join('database', 'MCDC')
-    if not os.path.exists(mcdc_dir):
-        return None
+    """Find an existing CSV file for the given coordinates."""
+    # Create the pattern for matching files
+    pattern = os.path.join(MCDC_DIR, f"{latitude}-{longitude}-*.csv")
     
-    # Look for files matching the pattern latitude-longitude-*.csv
-    pattern = os.path.join(mcdc_dir, f"{latitude}-{longitude}-*.csv")
+    # Find all matching files
     matching_files = glob.glob(pattern)
     
     if matching_files:
-        # Return the most recent file if multiple exist
+        # If multiple files exist, return the most recent one
         return max(matching_files, key=os.path.getctime)
+    
     return None
 
 def extract_data_from_csv(csv_path):
     """Extract specific columns from the downloaded CSV file."""
     try:
-        print(f"\nReading CSV file: {csv_path}")
-        # Read the CSV file
+        # Read the CSV file (quietly)
         df = pd.read_csv(csv_path)
         
         # Helper function to clean values
@@ -54,10 +58,6 @@ def extract_data_from_csv(csv_path):
             # Convert to string first
             value_str = str(value)
             
-            # For debugging
-            if '$' in value_str:
-                print(f"Found dollar sign in value: {value_str}")
-                
             # Remove dollar signs and commas
             value_str = value_str.replace('$', '').replace(',', '')
             
@@ -69,33 +69,15 @@ def extract_data_from_csv(csv_path):
         
         # Columns to extract - in the order specified by the user
         columns_to_extract = [
-            'TotPop',
-            'Age0_4',
-            'Age5_9',
-            'Age10_14',
-            'Age15_19',
-            'Age20_24',
-            'Age25_34',
-            'Age35_44',
-            'Age45_54',
-            'Age55_59',
-            'Age60_64',
-            'Age65_74',
-            'Age75_84',
-            'Over85',
-            'TotHUs',
-            'OccHUs',
-            'OwnerOcc',
-            'RenterOcc',
-            'MobileHomesPerK',
-            'MedianGrossRent',
-            'AvgGrossRent',
-            'CashRentOver30Pct'
+            'TotPop', 'Age0_4', 'Age5_9', 'Age10_14', 'Age15_19', 'Age20_24', 'Age25_34', 
+            'Age35_44', 'Age45_54', 'Age55_59', 'Age60_64', 'Age65_74', 'Age75_84', 'Over85', 
+            'TotHUs', 'OccHUs', 'OwnerOcc', 'RenterOcc', 'MedianGrossRent', 'AvgGrossRent', 
+            'CashRenterOver30Pct', 'MobileHomesPerK', 'MedianHHInc'
         ]
         
-        # Map our column names to possible CSV column names
+        # Mapping for alternative column names
         column_mapping = {
-            'TotPop': ['TotPop', 'Total population'],
+            'TotPop': ['TotPop', 'Total Population'],
             'Age0_4': ['Age0_4', 'Age 0-4'],
             'Age5_9': ['Age5_9', 'Age 5-9'],
             'Age10_14': ['Age10_14', 'Age 10-14'],
@@ -109,32 +91,25 @@ def extract_data_from_csv(csv_path):
             'Age65_74': ['Age65_74', 'Age 65-74'],
             'Age75_84': ['Age75_84', 'Age 75-84'],
             'Over85': ['Over85', 'Age 85+', 'Age 85 and over'],
-            'TotHUs': ['TotHUs', 'Total housing units'],
-            'OccHUs': ['OccHUs', 'Occupied housing units'],
-            'OwnerOcc': ['OwnerOcc', 'Owner occupied'],
-            'RenterOcc': ['RenterOcc', 'Renter occupied'],
-            'MobileHomesPerK': ['MobileHomesPerK', 'Mobile Homes per 1000 Housing Units'],
-            'MedianGrossRent': ['MedianGrossRent', 'Median gross rent'],
-            'AvgGrossRent': ['AvgGrossRent', 'Average gross rent', 'Mean gross rent'],
-            'CashRentOver30Pct': ['CashRentOver30Pct', 'Cash rent over 30 pct of income', 'Cash rent over 30% of income']
+            'TotHUs': ['TotHUs', 'Total Housing Units'],
+            'OccHUs': ['OccHUs', 'Occupied Housing Units'],
+            'OwnerOcc': ['OwnerOcc', 'Owner Occupied'],
+            'RenterOcc': ['RenterOcc', 'Renter Occupied'],
+            'MedianGrossRent': ['MedianGrossRent', 'Median Gross Rent'],
+            'AvgGrossRent': ['AvgGrossRent', 'Average Gross Rent'],
+            'CashRenterOver30Pct': ['CashRenterOver30Pct', 'pctCashRenterOver30Pct', 'Percent cash renters paying >30% of income toward rent'],
+            'MobileHomesPerK': ['MobileHomesPerK', 'Mobile Homes per 1000 Housing Units', 'Mobile homes per 1000 housing units'],
+            'MedianHHInc': ['MedianHHInc', 'Median Household Income', 'Median HH Income']
         }
         
-        # Radii values (mapping row index to radius value)
-        # In the CSV, first row is 5mi, second is 10mi, etc.
-        radii_mapping = {
-            0: 5,   # First row = 5 mile radius
-            1: 10,  # Second row = 10 mile radius
-            2: 15,  # Third row = 15 mile radius
-            3: 20,  # Fourth row = 20 mile radius
-            4: 25   # Fifth row = 25 mile radius
-        }
+        # Radii from the file (5, 10, 15, 20, 25 miles)
+        radii_mapping = {0: 5, 1: 10, 2: 15, 3: 20, 4: 25}
         
         # Initialize data dictionary
         data = {}
         
-        # Process each column
+        # Extract data for each column
         for col_name in columns_to_extract:
-            # Get possible CSV column names for this metric
             possible_names = column_mapping.get(col_name, [col_name])
             
             # Find the matching column in the CSV
@@ -166,235 +141,412 @@ def extract_data_from_csv(csv_path):
                                         data[radius_col_name] = clean_value
                                     else:
                                         data[radius_col_name] = None
-                                except Exception as e:
-                                    print(f"Error converting {radius_col_name}: {e}, raw value: {value}")
-                                    data[radius_col_name] = None
+                                except Exception:
+                                    # Silently handle conversion errors
+                                    pass
                             else:
                                 data[radius_col_name] = None
-            else:
-                print(f"Could not find column for {col_name} in CSV")
         
-        return data if data else None
-            
+        return data
     except Exception as e:
+        # Keep error logging for significant issues
         print(f"Error processing CSV: {e}")
-        import traceback
-        print("Full traceback:")
-        print(traceback.format_exc())
+        # Only print full traceback for debugging
+        if os.environ.get('DEBUG_MODE') == '1':
+            print("Full traceback:")
+            print(traceback.format_exc())
         return None
 
 def download_csv(driver, latitude, longitude):
-    """Download the CSV file from the results page."""
+    """Download the CSV file and extract data."""
     try:
-        # Wait for CSV link to be present
-        csv_link = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//a[contains(text(), 'CSV file')]"))
+        # Click the download CSV button
+        download_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'CSV')]"))
         )
+        download_button.click()
         
-        # Get the href attribute
-        csv_url = csv_link.get_attribute('href')
-        if not csv_url.startswith('http'):
-            # Convert relative URL to absolute URL
-            base_url = "https://mcdc.missouri.edu"
-            csv_url = base_url + csv_url
+        # Wait for the download to complete (assuming it goes to a downloads folder)
+        time.sleep(2)
         
-        # Create filename with latitude, longitude, and current date
-        current_date = datetime.now().strftime('%Y%m%d')
-        filename = f"{latitude}-{longitude}-{current_date}.csv"
+        # Move the file to a known location
+        today = datetime.now().strftime("%Y-%m-%d")
+        file_name = f"{latitude}-{longitude}-{today}.csv"
         
-        # Ensure MCDC directory exists
-        mcdc_dir = os.path.join('database', 'MCDC')
-        ensure_directory_exists(mcdc_dir)
+        # Ensure directory exists
+        ensure_directory_exists(MCDC_DIR)
         
-        # Full path for the file
-        file_path = os.path.join(mcdc_dir, filename)
+        # Get the most recent file from downloads directory
+        downloads_dir = str(Path.home() / "Downloads")
+        list_of_files = glob.glob(os.path.join(downloads_dir, "*.csv"))
+        if not list_of_files:
+            raise Exception("No CSV file found in downloads directory")
         
-        # Download the file using requests
-        response = requests.get(csv_url)
-        response.raise_for_status()  # Raise an exception for bad status codes
+        # Get the most recent CSV file from downloads
+        latest_file = max(list_of_files, key=os.path.getctime)
         
-        # Save the file
-        with open(file_path, 'wb') as f:
-            f.write(response.content)
+        # Copy to our directory
+        file_path = os.path.join(MCDC_DIR, file_name)
+        # Use os.rename to move the file
+        os.rename(latest_file, file_path)
         
-        print(f"Successfully downloaded CSV to {file_path}")
-        return file_path
+        # Extract data from the CSV
+        data = extract_data_from_csv(file_path)
         
+        return data
     except Exception as e:
         print(f"Error downloading CSV: {e}")
         return None
 
 def fetch_census_data(latitude, longitude):
-    """Fetch census data from MCDC CAPS ACS website."""
+    """Fetch census data for the given coordinates."""
     driver = None
     try:
-        # Initialize Safari WebDriver
-        driver = webdriver.Safari()
-        driver.set_window_size(1200, 800)
+        # Reduced verbosity during web scraping
+        from selenium.webdriver.chrome.options import Options
+        chrome_options = Options()
+        # Add headless option for less visual distraction
+        chrome_options.add_argument("--headless")
+        driver = webdriver.Chrome(options=chrome_options)
         
-        # Navigate to the website
-        print("\nNavigating to MCDC CAPS ACS website...")
+        # Navigate to the MCDC CAPS ACS website
         driver.get("https://mcdc.missouri.edu/applications/capsACS.html")
         
+        # Enter values in the form
+        longitude_input = driver.find_element(By.ID, "longd")
+        longitude_input.clear()
+        longitude_input.send_keys(str(longitude))
+        
+        latitude_input = driver.find_element(By.ID, "latd")
+        latitude_input.clear()
+        latitude_input.send_keys(str(latitude))
+        
+        # Enter radius values
+        radius_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='text'][size='3']")
+        for i, radius in enumerate([5, 10, 15, 20, 25]):
+            if i < len(radius_inputs):
+                radius_inputs[i].clear()
+                radius_inputs[i].send_keys(str(radius))
+        
+        # Click the generate report button
+        generate_button = driver.find_element(By.CSS_SELECTOR, "input[type='submit'][value='Generate Report']")
+        generate_button.click()
+        
+        # Wait for the results page to load
         try:
-            # Wait for page to be fully loaded
-            WebDriverWait(driver, 10).until(
-                lambda d: d.execute_script('return document.readyState') == 'complete'
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "table.data"))
             )
             
-            # Input longitude (use absolute value)
-            print("Entering longitude...")
-            long_input = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "longitude"))
-            )
-            long_input.clear()
-            long_value = abs(float(longitude))
-            long_input.send_keys(str(long_value))
-            time.sleep(0.5)  # Short wait for stability
-            
-            # Input latitude
-            print("Entering latitude...")
-            lat_input = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "latitude"))
-            )
-            lat_input.clear()
-            lat_input.send_keys(str(latitude))
-            time.sleep(0.5)  # Short wait for stability
-            
-            # Input radius "5 10 15 20 25"
-            print("Entering radius values...")
-            radius_input = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "radii"))
-            )
-            radius_input.clear()
-            radius_input.send_keys("5 10 15 20 25")
-            time.sleep(0.5)  # Short wait for stability
-            
-            # Click generate report button
-            print("Clicking generate report button...")
-            generate_button = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, 'input[type="submit"][value="Generate report"]'))
-            )
-            
-            # Scroll the button into view and click
-            driver.execute_script("arguments[0].scrollIntoView(true);", generate_button)
-            time.sleep(1)  # Wait for scroll
-            generate_button.click()
-            print("Generate report button clicked")
-            
-            # Wait for results page to load
-            print("Waiting for results to load...")
-            try:
-                # Wait for any table to appear
-                WebDriverWait(driver, 30).until(
-                    EC.presence_of_element_located((By.TAG_NAME, "table"))
-                )
-                time.sleep(5)  # Give extra time for table to fully load
-                
-                # Download the CSV file
-                csv_path = download_csv(driver, latitude, longitude)
-                
-                if csv_path:
-                    # Extract data from the CSV
-                    data = extract_data_from_csv(csv_path)
-                    if data:
-                        data['latitude'] = latitude
-                        data['longitude'] = longitude
-                        return data
-                
-                return None
-                
-            except Exception as e:
-                print(f"Error waiting for results: {e}")
-                return None
+            # Download the CSV and extract data
+            return download_csv(driver, latitude, longitude)
             
         except Exception as e:
-            print(f"Error with form inputs: {e}")
+            print(f"Error waiting for results: {e}")
             return None
-        
+            
     except Exception as e:
-        print(f"An error occurred: {e}")
+        if "form inputs" in str(e).lower():
+            print(f"Error with form inputs: {e}")
+        else:
+            print(f"An error occurred: {e}")
         return None
     finally:
         if driver:
             try:
                 driver.quit()
             except:
-                print("Error closing driver")
+                # Silently handle driver close errors
+                pass
 
 def update_master_csv(data, row_index):
-    """Update the master CSV with the new data."""
+    """Update the master CSV with the extracted data."""
     try:
-        df = pd.read_csv('database/master.csv')
+        # Read the master CSV
+        df = pd.read_csv("database/master.csv")
         
-        # Update all columns from the data dictionary
-        for col_name, value in data.items():
-            if col_name not in ['latitude', 'longitude']:  # Skip these as they're already in master.csv
-                if col_name not in df.columns:
-                    # Add new column if it doesn't exist
-                    df[col_name] = None
-                df.loc[row_index, col_name] = value
+        # Update the row with extracted data
+        for col, value in data.items():
+            # Check if the column exists, if not, add it
+            if col not in df.columns:
+                df[col] = None
+            
+            # Update the value, but never overwrite the StockNumber
+            if col != 'StockNumber':
+                df.at[row_index, col] = value
+        
+        # If this is a row without a StockNumber, make sure StockNumber is always the first column
+        if 'StockNumber' in df.columns and pd.isna(df.at[row_index, 'StockNumber']):
+            # Generate a state code
+            state_code = "XX"  # Default
+            
+            if 'State' in df.columns and pd.notna(df.at[row_index, 'State']):
+                state_code = df.at[row_index, 'State']
+            elif 'Market' in df.columns and pd.notna(df.at[row_index, 'Market']):
+                # Extract state code from market name
+                market = df.at[row_index, 'Market']
+                if "Upstate NY" in market:
+                    state_code = "NY"
+                elif "I85 Corridor" in market:
+                    state_code = "I85"
+                elif "Florida" in market:
+                    state_code = "FL"
+            
+            # This is a helper function imported from process_listings
+            # If it's not available, we'll just leave the StockNumber as null
+            try:
+                from modules.datasubmition.process_listings import generate_stock_number
+                df.at[row_index, 'StockNumber'] = generate_stock_number(df, state_code)
+            except ImportError:
+                pass  # Skip if the function is not available
+        
+        # Ensure StockNumber is the first column if it exists
+        if 'StockNumber' in df.columns:
+            cols = df.columns.tolist()
+            if cols[0] != 'StockNumber':
+                cols.remove('StockNumber')
+                cols = ['StockNumber'] + cols
+                df = df[cols]
         
         # Save the updated CSV
-        df.to_csv('database/master.csv', index=False)
-        print(f"Successfully updated row {row_index}")
+        df.to_csv("database/master.csv", index=False)
+        
+        # Minimal success feedback
+        return True
     except Exception as e:
         print(f"Error updating master CSV: {e}")
+        return False
 
 def process_existing_or_fetch_new(latitude, longitude, row_index):
-    """Process existing CSV or fetch new data if needed."""
-    # First check for existing CSV
+    """Process existing CSV or fetch new data."""
+    # Check for an existing CSV file
     existing_csv = find_existing_csv(latitude, longitude)
     
     if existing_csv:
-        print(f"Found existing CSV for coordinates {latitude}, {longitude}")
+        # Minimal output about existing file
+        
+        # Extract data from the existing CSV
         data = extract_data_from_csv(existing_csv)
-        if data:
-            data['latitude'] = latitude
-            data['longitude'] = longitude
+        
+        if data and len(data) > 0:
+            # Update the master CSV with the extracted data
             update_master_csv(data, row_index)
-            return data
+            return True
         else:
-            print("Failed to extract data from existing CSV, will fetch new data")
+            # Quietly proceed to fetch new data
+            pass
     
-    # If no existing CSV or failed to extract data, fetch new data
-    print(f"Fetching new data for coordinates {latitude}, {longitude}")
+    # Fetch new data
     data = fetch_census_data(latitude, longitude)
     
-    if data:
-        # Update master CSV
+    if data and len(data) > 0:
+        # Update the master CSV with the extracted data
         update_master_csv(data, row_index)
-        return data
+        return True
     else:
-        print(f"Failed to fetch data for row {row_index}")
-        return None
+        # Quiet failure
+        return False
+
+def verify_census_data_completeness():
+    """Check if all listings have complete census data and report what's missing."""
+    try:
+        # Read the master CSV
+        df = pd.read_csv("database/master.csv")
+        
+        # Check for listings with coordinates
+        has_coords = df['Latitude'].notna() & df['Longitude'].notna()
+        df_with_coords = df[has_coords]
+        
+        # Key columns that should be present if census data was fetched
+        key_columns = [
+            'TotPop_5', 'TotHUs_5', 'MedianGrossRent_5', 
+            'Age0_4_5', 'Age5_9_5', 'Age10_14_5', 'Age15_19_5', 'MedianHHInc_5'
+        ]
+        
+        # Optional columns that we don't want to trigger a retry if missing
+        optional_columns = ['MobileHomesPerK_5']
+        
+        # Find rows that are missing any key columns
+        missing_rows = []
+        # Keep track of which columns are missing for diagnostics
+        missing_data_details = {}
+        # Count how many listings are missing each column
+        missing_column_counts = {col: 0 for col in key_columns}
+        # Also track optional columns for reporting purposes, but don't include in missing_rows
+        for col in optional_columns:
+            missing_column_counts[col] = 0
+        
+        for index, row in df_with_coords.iterrows():
+            missing_columns = []
+            optional_missing_columns = []
+            
+            # Check which key columns are missing
+            for col in key_columns:
+                if col not in df.columns or pd.isna(row[col]):
+                    missing_columns.append(col)
+                    missing_column_counts[col] += 1
+            
+            # Also check optional columns for reporting
+            for col in optional_columns:
+                if col not in df.columns or pd.isna(row[col]):
+                    optional_missing_columns.append(col)
+                    missing_column_counts[col] += 1
+            
+            # Only add to missing_rows if required columns are missing (not just optional)
+            if missing_columns:
+                missing_rows.append(index)
+                missing_data_details[index] = {
+                    'coords': (row['Latitude'], row['Longitude']),
+                    'missing_columns': missing_columns + optional_missing_columns
+                }
+            # If only optional columns are missing, still add to details but don't trigger retry
+            elif optional_missing_columns:
+                missing_data_details[index] = {
+                    'coords': (row['Latitude'], row['Longitude']),
+                    'missing_columns': optional_missing_columns
+                }
+        
+        return missing_rows, missing_data_details, missing_column_counts
+    except Exception as e:
+        print(f"Error verifying data completeness: {e}")
+        return [], {}, {}
 
 def main():
-    """Main function to process all rows in the CSV."""
+    """Main function to process all listings."""
+    # Ensure the MCDC directory exists
+    ensure_directory_exists(MCDC_DIR)
+    
+    # Read the master CSV
     df = read_master_csv()
     if df is None:
-        print("Error reading CSV file")
+        console.print("[red]Error: Could not read master CSV file.[/red]")
         return
     
-    total = 0
-    processed = 0
+    # Check for listings with coordinates
+    has_coords = df['Latitude'].notna() & df['Longitude'].notna()
+    rows_to_process = df[has_coords].index.tolist()
     
-    for index, row in df.iterrows():
-        latitude = row['Latitude']
-        longitude = row['Longitude']
+    if not rows_to_process:
+        console.print("[red]No listings with coordinates found[/red]")
+        return
+    
+    # Initial messaging
+    total = len(rows_to_process)
+    console.print(f"[cyan]Fetching additional census data for all listings...[/cyan]")
+    console.print(f"[cyan]Processing {total} listings...[/cyan]")
+    
+    # Use a set to track successfully processed listings
+    successful_listings = set()
+    
+    # Process all rows initially with a progress bar
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeElapsedColumn()
+    ) as progress:
+        task = progress.add_task("[cyan]Processing listings...[/cyan]", total=total)
         
-        # Process this row if it has coordinates and doesn't have census data yet
-        if not pd.isna(latitude) and not pd.isna(longitude):
-            total += 1
+        for index in rows_to_process:
+            latitude = df.loc[index, 'Latitude']
+            longitude = df.loc[index, 'Longitude']
             
-            # Check for existing files first
-            data = process_existing_or_fetch_new(latitude, longitude, index)
-            if data:
-                processed += 1
-                print(f"Census data added for listing {index+1}")
+            # Process existing or fetch new data
+            success = process_existing_or_fetch_new(latitude, longitude, index)
+            
+            if success:
+                successful_listings.add(index)
+                
+            # Update progress
+            progress.update(task, advance=1, description=f"[cyan]Processing listing {progress.tasks[task].completed + 1}/{total}[/cyan]")
     
-    print(f"\nProcessed {processed} out of {total} listings with coordinates")
-    print("Census data fetching completed")
+    # Maximum of 2 retry attempts
+    max_retries = 2
+    
+    for retry_attempt in range(1, max_retries + 1):
+        # Verify data completeness with detailed reports
+        missing_rows, missing_details, missing_column_counts = verify_census_data_completeness()
+        
+        if not missing_rows:
+            # All data is complete
+            console.print("[bold green]All census data is complete![/bold green]")
+            break
+        
+        # Process rows with missing data
+        console.print(f"\n[bold cyan]--- Retry Attempt {retry_attempt} of {max_retries} ---[/bold cyan]")
+        console.print(f"[yellow]Found {len(missing_rows)} listings with missing data. Retrying...[/yellow]")
+        
+        # Show summary of which columns are missing
+        console.print("\n[bold]Missing data summary:[/bold]")
+        for col, count in missing_column_counts.items():
+            if count > 0:
+                console.print(f"  {col}: missing in {count} listings")
+        
+        # Display a sample of listings with missing data (limit to 5 for readability)
+        sample_size = min(5, len(missing_details))
+        if sample_size > 0:
+            console.print("\n[bold]Sample of listings with missing data:[/bold]")
+            sample_listings = list(missing_details.items())[:sample_size]
+            for idx, details in sample_listings:
+                lat = details['coords'][0]
+                lon = details['coords'][1]
+                missing_cols = ', '.join(details['missing_columns'])
+                console.print(f"  Row {idx}: ({lat}, {lon}) - Missing: {missing_cols}")
+            
+            if len(missing_details) > sample_size:
+                console.print(f"  ... and {len(missing_details) - sample_size} more listings")
+        
+        # Retry processing with a progress bar
+        if missing_rows:
+            with Progress(
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TaskProgressColumn(),
+                TimeElapsedColumn()
+            ) as progress:
+                retry_task = progress.add_task(
+                    f"[yellow]Retry attempt {retry_attempt}/{max_retries}[/yellow]", 
+                    total=len(missing_rows)
+                )
+                
+                for i, index in enumerate(missing_rows):
+                    if index not in rows_to_process:
+                        progress.update(retry_task, advance=1)
+                        continue  # Skip if not in our original list
+                        
+                    latitude = df.loc[index, 'Latitude']
+                    longitude = df.loc[index, 'Longitude']
+                    
+                    # Process existing or fetch new data
+                    success = process_existing_or_fetch_new(latitude, longitude, index)
+                    
+                    if success:
+                        successful_listings.add(index)
+                    
+                    # Update progress with more detailed description
+                    progress.update(
+                        retry_task, 
+                        advance=1, 
+                        description=f"[yellow]Retry {retry_attempt}/{max_retries}: {i+1}/{len(missing_rows)}[/yellow]"
+                    )
+    
+    # Final verification to see what's still missing
+    final_missing_rows, final_missing_details, final_missing_counts = verify_census_data_completeness()
+    
+    # Final summary
+    successfully_processed = len(successful_listings)
+    console.print(f"\n[bold green]Successfully processed {successfully_processed} out of {total} listings with coordinates[/bold green]")
+    
+    if final_missing_rows:
+        console.print(f"[yellow]Could not retrieve complete data for {len(final_missing_rows)} listings[/yellow]")
+        
+        # Show what columns are still missing
+        console.print("\n[bold]Still missing data for these columns:[/bold]")
+        for col, count in final_missing_counts.items():
+            if count > 0:
+                console.print(f"  {col}: missing in {count} listings")
+    
+    console.print("[bold green]Census data fetching completed[/bold green]")
 
 if __name__ == "__main__":
     main()

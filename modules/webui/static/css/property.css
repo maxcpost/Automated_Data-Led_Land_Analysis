@@ -1,0 +1,260 @@
+/* Property detail page styles - High-tech version */
+
+/* Use the same variables defined in dashboard.css */
+:root {
+    --primary-color: #0062cc;
+    --primary-dark: #004a9f;
+    --primary-light: #e6f0ff;
+    --accent-color: #00c9a7;
+    --dark-color: #2c3e50;
+    --light-color: #f8f9fc;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+}
+
+/* Header styles */
+#property-stock-number {
+    color: var(--primary-color);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+#property-location {
+    font-weight: 400;
+    color: #5a6a7e;
+}
+
+/* Summary cards */
+.card .card-body.py-2 {
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.card .card-subtitle {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card .card-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, var(--info-color), #1395a9) !important;
+}
+
+/* Map styling */
+.map-card {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: var(--card-shadow);
+    transition: transform var(--transition-speed);
+}
+
+.map-card:hover {
+    transform: translateY(-5px);
+}
+
+#map-placeholder {
+    height: 200px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    background-color: #f8f9fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#map-placeholder p {
+    font-size: 0.9rem;
+    color: #8e9bae;
+}
+
+#property-map, #full-property-map {
+    position: relative;
+    z-index: 2;
+    border-radius: 0.5rem;
+}
+
+#full-property-map {
+    border-radius: 0.75rem;
+    box-shadow: var(--card-shadow);
+    height: 600px !important;
+}
+
+/* Navigation tabs */
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    font-weight: 600;
+    color: #6c757d;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 0;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.nav-tabs .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+    border: none;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background-color: transparent;
+    border: none;
+}
+
+.nav-tabs .nav-link.active::after {
+    background-color: var(--primary-color);
+}
+
+/* Pills style for demographics sub-tabs */
+.nav-pills .nav-link {
+    margin-right: 0.5rem;
+    border-radius: 2rem;
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link.active {
+    background-color: var(--primary-color);
+}
+
+/* Data table styles */
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 1;
+    font-weight: 600;
+    color: var(--dark-color);
+    border-top: none;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    border-color: #f0f0f5;
+    padding: 0.75rem 1rem;
+}
+
+.table td:first-child {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Section headings */
+h5.border-bottom {
+    position: relative;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    color: var(--dark-color);
+    font-weight: 700;
+}
+
+h5.border-bottom::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 50px;
+    background-color: var(--primary-color);
+}
+
+/* Analytics explanations */
+dl dt {
+    font-weight: 700;
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: var(--dark-color);
+}
+
+dl dd {
+    margin-bottom: 1.5rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--primary-light);
+    color: #5a6a7e;
+    line-height: 1.6;
+}
+
+/* Alert styling */
+.alert-info {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.alert-info i {
+    color: var(--primary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .map-card {
+        margin-top: 1.5rem;
+    }
+    
+    #full-property-map {
+        height: 400px !important;
+    }
+    
+    .card-header-tabs {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .card-header-tabs .nav-link {
+        white-space: nowrap;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .nav-pills {
+        overflow-x: auto;
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        padding-bottom: 0.5rem;
+    }
+    
+    .nav-pills .nav-item {
+        display: inline-block;
+    }
+} 
