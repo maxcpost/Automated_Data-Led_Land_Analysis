@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Opportunity Assessment Dashboard{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="{{ url_for('static', filename='js/opportunity-dashboard.js') }}"></script>
+<style>
+    .dashboard-container {
+        padding: 20px;
+    }
+    
+    .dashboard-header {
+        margin-bottom: 30px;
+    }
+    
+    .visualization-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -15px;
+    }
+    
+    .visualization-card {
+        flex: 1 1 calc(50% - 30px);
+        margin: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        min-width: 300px;
+    }
+    
+    .visualization-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        background: #f8f9fa;
+    }
+    
+    .visualization-container {
+        height: 400px;
+        padding: 20px;
+    }
+    
+    .property-selector-container {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    #property-selector {
+        width: 100%;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+    
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 4px solid #3498db;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+        padding: 20px;
+        text-align: center;
+        color: #721c24;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+    }
+    
+    .error-message button {
+        margin-top: 10px;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    @media (max-width: 992px) {
+        .visualization-card {
+            flex: 1 1 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Opportunity Assessment Dashboard</h1>
+        <p>Analyze property opportunities using multi-dimensional visualizations</p>
+    </div>
+    
+    <div class="property-selector-container">
+        <h2>Property Radar Analysis</h2>
+        <p>Select a property to view its detailed opportunity profile:</p>
+        <select id="property-selector" disabled>
+            <option value="" disabled selected>Loading properties...</option>
+        </select>
+    </div>
+    
+    <div class="visualization-row">
+        <div class="visualization-card">
+            <div class="visualization-header">
+                <h3>Opportunity Quadrant</h3>
+                <p>Properties categorized by price and opportunity score</p>
+            </div>
+            <div id="opportunity-quadrant" class="visualization-container"></div>
+        </div>
+        
+        <div class="visualization-card">
+            <div class="visualization-header">
+                <h3>Property Radar Chart</h3>
+                <p>Multi-dimensional opportunity profile for selected property</p>
+            </div>
+            <div id="property-radar" class="visualization-container"></div>
+        </div>
+    </div>
+    
+    <div class="visualization-row">
+        <div class="visualization-card">
+            <div class="visualization-header">
+                <h3>Growth vs. Housing Gap</h3>
+                <p>Properties by population growth and housing supply gap</p>
+            </div>
+            <div id="growth-gap-chart" class="visualization-container"></div>
+        </div>
+        
+        <div class="visualization-card">
+            <div class="visualization-header">
+                <h3>Price-to-Potential Map</h3>
+                <p>Geographic map of properties by opportunity-to-price ratio</p>
+            </div>
+            <div id="price-potential-map" class="visualization-container"></div>
+        </div>
+    </div>
+    
+    <div class="visualization-row">
+        <div class="visualization-card" style="flex: 1 1 100%;">
+            <div class="visualization-header">
+                <h3>Competitive Advantage Matrix</h3>
+                <p>Heatmap showing competitive advantage for various development types</p>
+            </div>
+            <div id="competitive-advantage" class="visualization-container"></div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

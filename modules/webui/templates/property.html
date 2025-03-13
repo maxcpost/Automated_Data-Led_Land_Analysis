@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Detail - ADLA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/property.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand">
+                    <i class="bi bi-building me-2"></i>
+                    Automated Data-Led Land Analysis
+                </span>
+                <a href="/" class="btn btn-outline-light ms-auto">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-4" id="property-container">
+        <!-- Loading indicator -->
+        <div id="loading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading property details...</p>
+        </div>
+
+        <!-- Property not found message -->
+        <div id="property-not-found" class="alert alert-warning my-5 d-none">
+            <h4 class="alert-heading"><i class="bi bi-exclamation-triangle me-2"></i>Property Not Found</h4>
+            <p>The property with Stock Number <span id="missing-stock-number" class="badge bg-light text-dark">{{ stock_number }}</span> could not be found.</p>
+            <hr>
+            <p class="mb-0">Please return to the <a href="/" class="alert-link">dashboard</a> and try again.</p>
+        </div>
+
+        <!-- Property detail content (hidden until loaded) -->
+        <div id="property-detail" class="d-none">
+            <!-- Property Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-header p-4 rounded shadow-sm d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="badge bg-primary p-3 rounded-circle">
+                                <i class="bi bi-buildings fs-4"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <h1 class="fs-3 mb-1">Property Detail Report</h1>
+                            <p class="text-muted mb-0">
+                                Comprehensive analysis and information for property 
+                                <span id="header-stock-number" class="badge bg-primary">{{ stock_number }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Overview Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h3 class="mb-3">Property Overview</h3>
+                            <div class="row" id="property-overview">
+                                <div class="col-md-6">
+                                    <div class="card bg-light mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Key Metrics</h5>
+                                            <div class="row">
+                                                <div class="col-6 mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge bg-primary rounded-circle p-2 me-2">
+                                                            <i class="bi bi-rulers"></i>
+                                                        </span>
+                                                        <div>
+                                                            <small class="text-muted d-block">Acres</small>
+                                                            <span class="fw-bold" id="overview-acres"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge bg-success rounded-circle p-2 me-2">
+                                                            <i class="bi bi-currency-dollar"></i>
+                                                        </span>
+                                                        <div>
+                                                            <small class="text-muted d-block">Price</small>
+                                                            <span class="fw-bold" id="overview-price"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge bg-info rounded-circle p-2 me-2">
+                                                            <i class="bi bi-geo-alt"></i>
+                                                        </span>
+                                                        <div>
+                                                            <small class="text-muted d-block">Location</small>
+                                                            <span class="fw-bold" id="overview-location"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge bg-warning rounded-circle p-2 me-2">
+                                                            <i class="bi bi-graph-up"></i>
+                                                        </span>
+                                                        <div>
+                                                            <small class="text-muted d-block">Score</small>
+                                                            <span class="fw-bold" id="overview-score"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Opportunity Factors</h5>
+                                            <div class="progress-section">
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>Location Value</span>
+                                                        <span id="location-value-percent">N/A</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 6px;">
+                                                        <div id="location-value-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>Development Potential</span>
+                                                        <span id="development-potential-percent">N/A</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 6px;">
+                                                        <div id="development-potential-progress" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>Housing Demand</span>
+                                                        <span id="housing-demand-percent">N/A</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 6px;">
+                                                        <div id="housing-demand-progress" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-0">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>Population Growth</span>
+                                                        <span id="population-growth-percent">N/A</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 6px;">
+                                                        <div id="population-growth-progress" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary section -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h2 class="mb-1">Property <span id="property-stock-number" class="text-primary"></span></h2>
+                                    <h4 class="text-muted mb-3" id="property-location">
+                                        <i class="bi bi-geo-alt me-1"></i> <span id="location-text"></span>
+                                    </h4>
+                                    <!-- Add contact information -->
+                                    <div class="contact-info mb-3">
+                                        <p class="mb-1">
+                                            <i class="bi bi-building me-1 text-primary"></i> 
+                                            <strong>Listing Company:</strong> <span id="company-name"></span>
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="bi bi-telephone me-1 text-primary"></i> 
+                                            <strong>Contact:</strong> <span id="company-phone"></span>
+                                        </p>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body py-2">
+                                                    <h6 class="card-subtitle mb-1 text-muted">
+                                                        <i class="bi bi-currency-dollar me-1"></i> Sale Price
+                                                    </h6>
+                                                    <h4 class="card-title mb-0" id="property-price"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body py-2">
+                                                    <h6 class="card-subtitle mb-1 text-muted">
+                                                        <i class="bi bi-rulers me-1"></i> Land Area
+                                                    </h6>
+                                                    <h4 class="card-title mb-0"><span id="property-acres"></span> acres</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card bg-info text-white">
+                                                <div class="card-body py-2">
+                                                    <h6 class="card-subtitle mb-1 text-white-50">
+                                                        <i class="bi bi-star me-1"></i> Composite Score
+                                                    </h6>
+                                                    <h4 class="card-title mb-0" id="property-score"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mt-3 mt-md-0">
+                                    <div class="card map-card">
+                                        <div id="map-placeholder" class="d-flex align-items-center justify-content-center bg-light">
+                                            <div class="text-center">
+                                                <i class="bi bi-map text-muted mb-2" style="font-size: 2rem;"></i>
+                                                <p class="text-muted mb-0">Map loading...</p>
+                                            </div>
+                                        </div>
+                                        <div id="property-map" style="height: 200px; width: 100%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed information tabs -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-white">
+                            <ul class="nav nav-tabs card-header-tabs" id="propertyTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                                        <i class="bi bi-info-circle me-2"></i>Overview
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="demographic-tab" data-bs-toggle="tab" data-bs-target="#demographic" type="button" role="tab" aria-controls="demographic" aria-selected="false">
+                                        <i class="bi bi-people me-2"></i>Demographics
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab" aria-controls="analytics" aria-selected="false">
+                                        <i class="bi bi-bar-chart me-2"></i>Analytics
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="opportunity-tab" data-bs-toggle="tab" data-bs-target="#opportunity" type="button" role="tab" aria-controls="opportunity" aria-selected="false">
+                                        <i class="bi bi-graph-up-arrow me-2"></i>Opportunity Analysis
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="fullmap-tab" data-bs-toggle="tab" data-bs-target="#fullmap" type="button" role="tab" aria-controls="fullmap" aria-selected="false">
+                                        <i class="bi bi-map me-2"></i>Interactive Map
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="propertyTabContent">
+                                <!-- Overview Tab -->
+                                <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">
+                                                <i class="bi bi-house me-2 text-primary"></i>
+                                                Property Information
+                                            </h5>
+                                            <div id="property-info" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">
+                                                <i class="bi bi-geo me-2 text-primary"></i>
+                                                Location Details
+                                            </h5>
+                                            <div id="location-info" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Demographics Tab -->
+                                <div class="tab-pane fade" id="demographic" role="tabpanel" aria-labelledby="demographic-tab">
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle-fill me-2"></i>
+                                                Demographics data is shown for various driving time radii (5, 10, 15, 20, and 25 minutes) from the property location.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Demographics Tabs -->
+                                    <ul class="nav nav-pills mb-3" id="demographicsTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="demo5-tab" data-bs-toggle="pill" data-bs-target="#demo5" type="button" role="tab" aria-controls="demo5" aria-selected="true">
+                                                <i class="bi bi-1-circle me-1"></i> 5 min
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="demo10-tab" data-bs-toggle="pill" data-bs-target="#demo10" type="button" role="tab" aria-controls="demo10" aria-selected="false">
+                                                <i class="bi bi-2-circle me-1"></i> 10 min
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="demo15-tab" data-bs-toggle="pill" data-bs-target="#demo15" type="button" role="tab" aria-controls="demo15" aria-selected="false">
+                                                <i class="bi bi-3-circle me-1"></i> 15 min
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="demo20-tab" data-bs-toggle="pill" data-bs-target="#demo20" type="button" role="tab" aria-controls="demo20" aria-selected="false">
+                                                <i class="bi bi-4-circle me-1"></i> 20 min
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="demo25-tab" data-bs-toggle="pill" data-bs-target="#demo25" type="button" role="tab" aria-controls="demo25" aria-selected="false">
+                                                <i class="bi bi-5-circle me-1"></i> 25 min
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    
+                                    <div class="tab-content" id="demographicsTabContent">
+                                        <div class="tab-pane fade show active" id="demo5" role="tabpanel" aria-labelledby="demo5-tab">
+                                            <div id="demographics-5" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="demo10" role="tabpanel" aria-labelledby="demo10-tab">
+                                            <div id="demographics-10" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="demo15" role="tabpanel" aria-labelledby="demo15-tab">
+                                            <div id="demographics-15" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="demo20" role="tabpanel" aria-labelledby="demo20-tab">
+                                            <div id="demographics-20" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="demo25" role="tabpanel" aria-labelledby="demo25-tab">
+                                            <div id="demographics-25" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Analytics Tab -->
+                                <div class="tab-pane fade" id="analytics" role="tabpanel" aria-labelledby="analytics-tab">
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">
+                                                <i class="bi bi-graph-up me-2 text-primary"></i>
+                                                Key Analytics Metrics
+                                            </h5>
+                                            <div id="analytics-info" class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <h5 class="border-bottom pb-2 mb-3">
+                                                <i class="bi bi-lightbulb me-2 text-primary"></i>
+                                                Metrics Explanation
+                                            </h5>
+                                            <dl>
+                                                <dt><i class="bi bi-house me-2"></i>Demand for Attainable Rent</dt>
+                                                <dd>Calculated as: TotPop_15 × (MedianGrossRent_15 ÷ (MedianHHInc_15 ÷ 12)). Higher values indicate greater demand for rental housing relative to income.</dd>
+                                                
+                                                <dt><i class="bi bi-buildings me-2"></i>Housing Gap</dt>
+                                                <dd>Represents housing units per person (TotHUs_20 ÷ TotPop_20). Lower values indicate potential housing shortages.</dd>
+                                                
+                                                <dt><i class="bi bi-currency-dollar me-2"></i>Home Affordability Gap</dt>
+                                                <dd>Calculated as: 2024 Median Home Value - (Median Household Income × 3). Negative values indicate more affordable housing.</dd>
+                                                
+                                                <dt><i class="bi bi-arrow-left-right me-2"></i>Weighted Demand and Convenience</dt>
+                                                <dd>Balances population density with convenience: ((0.4×TotPop_10) + (0.3×TotPop_15) + (0.2×TotPop_20) + (0.1×TotPop_25)) ÷ ln(1 + Nearest_Walmart_Travel_Time_Minutes)</dd>
+                                                
+                                                <dt><i class="bi bi-star me-2"></i>Composite Score</dt>
+                                                <dd>An overall property rating that equally weights the normalized values of the four metrics above (0.25 each).</dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Opportunity Tab -->
+                                <div class="tab-pane fade" id="opportunity" role="tabpanel" aria-labelledby="opportunity-tab">
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle-fill me-2"></i>
+                                                This tab provides comparative visualizations to help you understand how this property compares to others in terms of investment opportunity.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header bg-white">
+                                                    <h5 class="mb-0">
+                                                        <i class="bi bi-bullseye me-2 text-primary"></i>
+                                                        Opportunity Profile
+                                                    </h5>
+                                                    <p class="text-muted mb-0 small">Multi-dimensional analysis of property opportunity factors</p>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div id="property-radar-chart" class="visualization-container">
+                                                        <div class="loading-spinner">
+                                                            <div class="spinner"></div>
+                                                            <p>Loading visualization...</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header bg-white">
+                                                    <h5 class="mb-0">
+                                                        <i class="bi bi-grid-3x3 me-2 text-primary"></i>
+                                                        Opportunity Quadrant
+                                                    </h5>
+                                                    <p class="text-muted mb-0 small">Property position in price vs. opportunity matrix</p>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div id="property-quadrant-chart" class="visualization-container">
+                                                        <div class="loading-spinner">
+                                                            <div class="spinner"></div>
+                                                            <p>Loading visualization...</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header bg-white">
+                                                    <h5 class="mb-0">
+                                                        <i class="bi bi-arrow-up-right me-2 text-primary"></i>
+                                                        Growth vs. Housing Gap
+                                                    </h5>
+                                                    <p class="text-muted mb-0 small">Population growth and housing supply analysis</p>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div id="property-growth-gap-chart" class="visualization-container">
+                                                        <div class="loading-spinner">
+                                                            <div class="spinner"></div>
+                                                            <p>Loading visualization...</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header bg-white">
+                                                    <h5 class="mb-0">
+                                                        <i class="bi bi-building-check me-2 text-primary"></i>
+                                                        Competitive Advantage
+                                                    </h5>
+                                                    <p class="text-muted mb-0 small">Property's competitive advantage for different development types</p>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div id="property-advantage-chart" class="visualization-container">
+                                                        <div class="loading-spinner">
+                                                            <div class="spinner"></div>
+                                                            <p>Loading visualization...</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Full Map Tab -->
+                                <div class="tab-pane fade" id="fullmap" role="tabpanel" aria-labelledby="fullmap-tab">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="map-controls mb-3">
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <button id="map-satellite" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-globe me-1"></i> Satellite View
+                                                    </button>
+                                                    <button id="map-terrain" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-mountains me-1"></i> Terrain View
+                                                    </button>
+                                                    <button id="map-zoom-in" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-zoom-in"></i>
+                                                    </button>
+                                                    <button id="map-zoom-out" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-zoom-out"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="full-property-map" style="height: 600px; width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Property Actions</h5>
+                                <div class="d-flex gap-2">
+                                    <button id="print-report" class="btn btn-outline-primary">
+                                        <i class="bi bi-printer me-1"></i> Print Report
+                                    </button>
+                                    <button id="generate-ai-report" class="btn btn-outline-info">
+                                        <i class="bi bi-robot me-1"></i> AI Report
+                                    </button>
+                                    <button id="export-data" class="btn btn-outline-secondary">
+                                        <i class="bi bi-download me-1"></i> Export Data
+                                    </button>
+                                    <a href="/" class="btn btn-primary">
+                                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Report Modal -->
+    <div class="modal fade" id="ai-report-modal" tabindex="-1" aria-labelledby="ai-report-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="ai-report-modal-label">
+                        <i class="bi bi-robot me-2"></i>AI Property Analysis Report
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="ai-report-loading" class="text-center my-5">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Generating report...</span>
+                        </div>
+                        <p class="mt-2">Generating AI analysis, please wait...</p>
+                    </div>
+                    <div id="ai-report-content" class="d-none">
+                        <!-- Report content will be inserted here by JavaScript -->
+                    </div>
+                    <div id="ai-report-error" class="d-none">
+                        <div class="alert alert-danger">
+                            <h5><i class="bi bi-exclamation-triangle me-2"></i>Error Generating Report</h5>
+                            <p id="ai-report-error-message">Unable to generate AI report. Please try again later.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="copy-ai-report" class="btn btn-primary">
+                        <i class="bi bi-clipboard me-1"></i>Copy Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light text-center text-muted p-3 mt-4">
+        <div class="container">
+            <p class="mb-0">© 2023 Automated Data-Led Land Analysis | <a href="#" class="text-decoration-none">Documentation</a></p>
+        </div>
+    </footer>
+
+    <!-- Google Maps JavaScript API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/property.js') }}"></script>
+    <script>
+        // Store the stock number for the JavaScript
+        const STOCK_NUMBER = "{{ stock_number }}";
+    </script>
+</body>
+</html> 
