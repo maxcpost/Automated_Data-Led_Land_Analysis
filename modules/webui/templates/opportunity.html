@@ -13,6 +13,43 @@
     
     .dashboard-header {
         margin-bottom: 30px;
+        border-radius: var(--adla-radius-lg);
+        background: var(--adla-dark);
+        color: var(--adla-white);
+        box-shadow: var(--adla-shadow-lg);
+        padding: 2rem !important;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background: linear-gradient(135deg, transparent 0%, rgba(241, 193, 98, 0.1) 100%);
+        clip-path: polygon(100% 0, 100% 100%, 0 100%);
+        z-index: 1;
+    }
+    
+    .dashboard-header h1 {
+        position: relative;
+        z-index: 2;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--adla-white);
+    }
+    
+    .dashboard-header p {
+        position: relative;
+        z-index: 2;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        max-width: 80%;
+        margin-bottom: 0;
     }
     
     .visualization-row {
@@ -25,16 +62,36 @@
         flex: 1 1 calc(50% - 30px);
         margin: 15px;
         background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: var(--adla-radius-lg);
+        box-shadow: var(--adla-shadow-md);
         overflow: hidden;
         min-width: 300px;
+        transition: var(--adla-transition-normal);
+    }
+    
+    .visualization-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--adla-shadow-lg);
     }
     
     .visualization-header {
         padding: 15px 20px;
-        border-bottom: 1px solid #eee;
-        background: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        background: var(--adla-white);
+        display: flex;
+        align-items: center;
+    }
+    
+    .visualization-header i {
+        color: var(--adla-accent);
+        margin-right: 8px;
+    }
+    
+    .visualization-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--adla-dark);
     }
     
     .visualization-container {
@@ -46,15 +103,29 @@
         margin-bottom: 30px;
         padding: 20px;
         background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: var(--adla-radius-lg);
+        box-shadow: var(--adla-shadow-md);
+        border-left: 4px solid var(--adla-accent);
     }
     
-    #property-selector {
-        width: 100%;
-        padding: 10px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
+    .property-selector-label {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--adla-dark);
+    }
+    
+    select.property-selector {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: var(--adla-radius-md);
+        padding: 0.65rem 1rem;
+        font-size: 0.95rem;
+        transition: var(--adla-transition-normal);
+        box-shadow: var(--adla-shadow-sm);
+    }
+    
+    select.property-selector:focus {
+        border-color: var(--adla-accent);
+        box-shadow: 0 0 0 0.25rem rgba(241, 193, 98, 0.25);
     }
     
     .loading-spinner {
@@ -108,64 +179,64 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
+<div class="container mt-4">
     <div class="dashboard-header">
         <h1>Opportunity Assessment Dashboard</h1>
-        <p>Analyze property opportunities using multi-dimensional visualizations</p>
+        <p>Analyze and compare property opportunities with interactive visualizations</p>
     </div>
     
     <div class="property-selector-container">
-        <h2>Property Radar Analysis</h2>
-        <p>Select a property to view its detailed opportunity profile:</p>
-        <select id="property-selector" disabled>
-            <option value="" disabled selected>Loading properties...</option>
+        <div class="property-selector-label">
+            <i class="bi bi-building text-accent me-2"></i>
+            Select Property:
+        </div>
+        <select id="property-selector" class="form-select property-selector">
+            <option value="">Loading properties...</option>
         </select>
     </div>
     
     <div class="visualization-row">
         <div class="visualization-card">
             <div class="visualization-header">
+                <i class="bi bi-graph-up"></i>
                 <h3>Opportunity Quadrant</h3>
-                <p>Properties categorized by price and opportunity score</p>
             </div>
             <div id="opportunity-quadrant" class="visualization-container"></div>
         </div>
         
         <div class="visualization-card">
             <div class="visualization-header">
-                <h3>Property Radar Chart</h3>
-                <p>Multi-dimensional opportunity profile for selected property</p>
+                <i class="bi bi-bar-chart"></i>
+                <h3>Housing Gap vs Growth</h3>
             </div>
-            <div id="property-radar" class="visualization-container"></div>
+            <div id="housing-gap-growth" class="visualization-container"></div>
         </div>
     </div>
     
-    <div class="visualization-row">
+    <div class="visualization-row mt-4">
         <div class="visualization-card">
             <div class="visualization-header">
-                <h3>Growth vs. Housing Gap</h3>
-                <p>Properties by population growth and housing supply gap</p>
+                <i class="bi bi-pie-chart"></i>
+                <h3>Demand Breakdown</h3>
             </div>
-            <div id="growth-gap-chart" class="visualization-container"></div>
+            <div id="demand-breakdown" class="visualization-container"></div>
         </div>
         
         <div class="visualization-card">
             <div class="visualization-header">
-                <h3>Price-to-Potential Map</h3>
-                <p>Geographic map of properties by opportunity-to-price ratio</p>
+                <i class="bi bi-ladder"></i>
+                <h3>Opportunity Score Comparison</h3>
             </div>
-            <div id="price-potential-map" class="visualization-container"></div>
-        </div>
-    </div>
-    
-    <div class="visualization-row">
-        <div class="visualization-card" style="flex: 1 1 100%;">
-            <div class="visualization-header">
-                <h3>Competitive Advantage Matrix</h3>
-                <p>Heatmap showing competitive advantage for various development types</p>
-            </div>
-            <div id="competitive-advantage" class="visualization-container"></div>
+            <div id="score-comparison" class="visualization-container"></div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initOpportunityDashboard();
+    });
+</script>
 {% endblock %} 
