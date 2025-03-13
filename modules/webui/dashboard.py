@@ -17,6 +17,14 @@ import plotly.utils
 import plotly.graph_objects as go
 import requests  # Add this import for making API requests to OpenAI
 
+# Load environment variables from .env file if available
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("Environment variables loaded from .env file")
+except ImportError:
+    print("python-dotenv not installed, using system environment variables")
+
 # Initialize console for output
 console = Console()
 
