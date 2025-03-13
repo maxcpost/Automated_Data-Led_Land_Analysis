@@ -413,7 +413,8 @@ header {
 }
 
 .badge.bg-info {
-  background-color: #3498db !important;
+  background-color: var(--adla-dark) !important;
+  color: var(--adla-white) !important;
 }
 
 .badge.bg-warning {
@@ -422,7 +423,7 @@ header {
 }
 
 .badge.bg-success {
-  background-color: #2ecc71 !important;
+  background-color: var(--adla-accent-dark) !important;
 }
 
 /* Progress indicators */
@@ -443,15 +444,15 @@ header {
 }
 
 .progress-bar.bg-info {
-  background-color: #3498db !important;
+  background-color: var(--adla-dark) !important;
 }
 
 .progress-bar.bg-success {
-  background-color: #2ecc71 !important;
+  background-color: var(--adla-accent-dark) !important;
 }
 
 .progress-bar.bg-warning {
-  background-color: #f39c12 !important;
+  background-color: var(--adla-accent) !important;
 }
 
 /* ===== VISUALIZATIONS ===== */
@@ -525,13 +526,13 @@ header {
 }
 
 .alert-info {
-  background-color: rgba(52, 152, 219, 0.1);
-  color: #2980b9;
+  background-color: rgba(14, 31, 48, 0.1);
+  color: var(--adla-dark);
 }
 
 .alert-success {
-  background-color: rgba(46, 204, 113, 0.1);
-  color: #27ae60;
+  background-color: rgba(217, 169, 78, 0.1);
+  color: var(--adla-accent-dark);
 }
 
 .alert-warning {
@@ -699,4 +700,99 @@ footer a:hover {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* ===== BOOTSTRAP OVERRIDES ===== */
+
+/* Override Bootstrap's blue focus ring */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.btn-check:focus + .btn,
+.btn:focus {
+  box-shadow: 0 0 0 0.25rem rgba(241, 193, 98, 0.25) !important;
+}
+
+/* Override Bootstrap's blue links */
+a {
+  color: var(--adla-accent);
+}
+
+a:hover {
+  color: var(--adla-accent-dark);
+}
+
+/* Override Bootstrap's primary color */
+.text-primary {
+  color: var(--adla-accent) !important;
+}
+
+.bg-primary {
+  background-color: var(--adla-accent) !important;
+}
+
+.border-primary {
+  border-color: var(--adla-accent) !important;
+}
+
+/* Override Bootstrap's info color */
+.text-info {
+  color: var(--adla-dark) !important;
+}
+
+.bg-info {
+  background-color: var(--adla-dark) !important;
+  color: var(--adla-white);
+}
+
+.border-info {
+  border-color: var(--adla-dark) !important;
+}
+
+/* Override Bootstrap's btn-outline-info */
+.btn-outline-info {
+  color: var(--adla-dark);
+  border-color: var(--adla-dark);
+}
+
+.btn-outline-info:hover {
+  background-color: var(--adla-dark);
+  border-color: var(--adla-dark);
+  color: var(--adla-white);
+}
+
+.btn-info {
+  background-color: var(--adla-dark);
+  border-color: var(--adla-dark);
+  color: var(--adla-white);
+}
+
+.btn-info:hover {
+  background-color: #162f45;
+  border-color: #162f45;
+  color: var(--adla-white);
+}
+
+/* Override Bootstrap's btn-outline-primary */
+.btn-outline-accent {
+  color: var(--adla-accent);
+  border-color: var(--adla-accent);
+}
+
+.btn-outline-accent:hover {
+  background-color: var(--adla-accent);
+  border-color: var(--adla-accent);
+  color: var(--adla-dark);
+}
+
+.btn-accent {
+  background-color: var(--adla-accent);
+  border-color: var(--adla-accent);
+  color: var(--adla-dark);
+}
+
+.btn-accent:hover {
+  background-color: var(--adla-accent-dark);
+  border-color: var(--adla-accent-dark);
+  color: var(--adla-dark);
 } 
