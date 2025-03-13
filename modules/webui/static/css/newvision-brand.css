@@ -1,222 +1,310 @@
 /* 
- * New Vision Development Group Branding Theme for ADLA Application
- * Based on NewVisionDevGrp.com styling
+ * New Vision Development Group Premium Branding Theme
+ * High-end styling for ADLA Application
  */
 
 :root {
   /* Brand Colors */
-  --nv-primary: #0f3a62;      /* Deep navy blue - primary brand color */
-  --nv-secondary: #3672a4;    /* Medium blue - secondary brand color */
-  --nv-accent: #e9b64a;       /* Golden accent color */
-  --nv-light: #f5f7fa;        /* Light background color */
-  --nv-dark: #242b3a;         /* Dark text color */
-  --nv-gray: #6c757d;         /* Gray text/elements */
-  --nv-border: #dee2e6;       /* Border color */
+  --nv-primary: #0e1f30;       /* Dark blue primary brand color */
+  --nv-secondary: #0a1622;     /* Darker shade for depth */
+  --nv-accent: #f1c162;        /* Golden accent color */
+  --nv-accent-hover: #dcae4d;  /* Darker gold for hover states */
+  --nv-light: #f8f9fa;         /* Light background color */
+  --nv-dark: #0a1520;          /* Very dark shade for contrast areas */
+  --nv-text-on-dark: #ffffff;  /* Text color on dark backgrounds */
+  --nv-text-on-light: #212529; /* Text color on light backgrounds */
+  --nv-border: rgba(255,255,255,0.1); /* Default border color */
+  
+  /* Shadows */
+  --nv-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --nv-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --nv-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.25);
   
   /* Typography */
-  --nv-font-family: 'Open Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --nv-heading-font: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --nv-font-primary: 'Montserrat', sans-serif;
+  --nv-font-secondary: 'Open Sans', sans-serif;
 }
 
 /* Global Typography */
 body {
-  font-family: var(--nv-font-family);
-  color: var(--nv-dark);
-  background-color: var(--nv-light);
+  font-family: var(--nv-font-secondary);
+  background-color: #f5f7f9;
+  color: var(--nv-text-on-light);
+  line-height: 1.5;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--nv-heading-font);
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+  font-family: var(--nv-font-primary);
   font-weight: 600;
-  color: var(--nv-primary);
 }
 
 /* Header & Navigation */
 header {
   background-color: var(--nv-primary);
+  box-shadow: var(--nv-shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.navbar-dark {
+.navbar {
+  padding: 0.75rem 1rem;
   background-color: var(--nv-primary) !important;
 }
 
-.navbar-brand {
-  font-family: var(--nv-heading-font);
-  font-weight: 700;
-}
-
-.navbar-dark .navbar-brand, 
-.navbar-dark .nav-link {
-  color: white !important;
-}
-
-.navbar-dark .nav-link:hover {
-  color: var(--nv-accent) !important;
-}
-
-/* Main brand logo and text styling */
 .brand-logo {
   display: flex;
   align-items: center;
 }
 
+.logo-image {
+  height: 40px;
+  width: auto;
+  margin-right: 1rem;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
 .brand-title {
-  font-size: 1.5rem;
-  margin-bottom: 0;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+  line-height: 1.1;
+  color: var(--nv-text-on-dark);
 }
 
 .brand-subtitle {
   font-size: 0.8rem;
-  opacity: 0.8;
+  opacity: 0.75;
+  letter-spacing: 0.5px;
+  color: var(--nv-text-on-dark);
 }
 
-/* Cards and Containers */
+/* Cards & Containers */
 .card {
-  border-color: var(--nv-border);
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  border-radius: 0.375rem;
+  border: none;
+  border-radius: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--nv-shadow-md);
+}
+
+.card-title {
+  font-weight: 600;
+  color: var(--nv-primary);
 }
 
 .card-header {
-  background-color: #fff;
-  border-bottom: 1px solid var(--nv-border);
+  background-color: var(--nv-primary);
+  color: var(--nv-text-on-dark);
+  border-bottom: none;
+  padding: 1rem 1.25rem;
+}
+
+.card-footer {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .dashboard-header {
   background-color: var(--nv-primary);
-  color: white;
-}
-
-.dashboard-header h1, 
-.dashboard-header p {
-  color: white;
+  color: var(--nv-text-on-dark);
 }
 
 /* Buttons */
-.btn-primary {
-  background-color: var(--nv-primary);
-  border-color: var(--nv-primary);
+.btn {
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.3s;
+  text-transform: none;
+  letter-spacing: 0.5px;
 }
 
-.btn-primary:hover, 
-.btn-primary:active, 
-.btn-primary:focus {
-  background-color: var(--nv-secondary) !important;
-  border-color: var(--nv-secondary) !important;
+.btn-primary {
+  background-color: var(--nv-accent);
+  border-color: var(--nv-accent);
+  color: var(--nv-primary);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--nv-accent-hover) !important;
+  border-color: var(--nv-accent-hover) !important;
+  color: var(--nv-primary) !important;
 }
 
 .btn-outline-primary {
-  color: var(--nv-primary);
-  border-color: var(--nv-primary);
+  border-color: var(--nv-accent);
+  color: var(--nv-accent);
 }
 
 .btn-outline-primary:hover {
-  background-color: var(--nv-primary);
-  border-color: var(--nv-primary);
+  background-color: var(--nv-accent);
+  border-color: var(--nv-accent);
+  color: var(--nv-primary);
+}
+
+.btn-light {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent;
+  color: white;
+}
+
+.btn-light:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
 }
 
 .btn-outline-light:hover {
-  color: var(--nv-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: white;
+  color: white;
 }
 
-/* Progress bars and indicators */
-.progress-bar.bg-primary {
-  background-color: var(--nv-primary) !important;
+/* Table Styling */
+.table {
+  --bs-table-hover-bg: rgba(241, 193, 98, 0.05);
+  --bs-table-hover-color: inherit;
 }
 
-.progress-bar.bg-success {
-  background-color: #28a745 !important;
+.table thead th {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1rem;
 }
 
-.progress-bar.bg-info {
-  background-color: var(--nv-secondary) !important;
+.table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-color: rgba(0, 0, 0, 0.05);
 }
 
-.progress-bar.bg-warning {
-  background-color: var(--nv-accent) !important;
+/* Premium Features */
+.premium-feature {
+  background: linear-gradient(135deg, var(--nv-primary) 0%, var(--nv-dark) 100%);
+  color: var(--nv-text-on-dark);
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: var(--nv-shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-feature:before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  bottom: -50%;
+  left: -50%;
+  background: linear-gradient(45deg, rgba(241, 193, 98, 0.1) 0%, rgba(241, 193, 98, 0) 70%);
+  transform: rotate(45deg);
+  z-index: 0;
+}
+
+.premium-feature > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--nv-accent);
+  box-shadow: 0 0 0 0.25rem rgba(241, 193, 98, 0.25);
+}
+
+.input-group-text {
+  background-color: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* Badges */
-.badge.bg-primary {
-  background-color: var(--nv-primary) !important;
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 0.35em 0.85em;
+  border-radius: 4px;
 }
 
-.badge.bg-secondary {
-  background-color: var(--nv-secondary) !important;
-}
-
-.badge.bg-info {
-  background-color: var(--nv-secondary) !important;
-}
-
-.badge.bg-warning {
+.analytics-badge {
   background-color: var(--nv-accent) !important;
+  color: var(--nv-primary) !important;
 }
 
-/* Tabs */
-.nav-tabs .nav-link.active {
-  color: var(--nv-primary);
-  border-bottom-color: var(--nv-primary);
-  font-weight: 600;
+/* Progress Bars */
+.progress {
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
 }
 
-.nav-tabs .nav-link:hover:not(.active) {
-  border-bottom-color: var(--nv-border);
+.progress-bar {
+  background-color: var(--nv-accent);
 }
 
-/* Alerts and Notifications */
+/* Alerts */
+.alert {
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
 .alert-info {
-  background-color: rgba(54, 114, 164, 0.15);
-  border-color: rgba(54, 114, 164, 0.4);
-  color: var(--nv-secondary);
+  background-color: rgba(13, 202, 240, 0.1);
+  color: #055160;
+}
+
+.alert-primary {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #084298;
 }
 
 /* Footer */
 footer {
   background-color: var(--nv-primary);
-  color: white;
+  color: var(--nv-text-on-dark);
+  padding: 2rem 0;
+  margin-top: 3rem;
 }
 
 footer a {
   color: rgba(255, 255, 255, 0.8);
+  transition: color 0.2s;
 }
 
 footer a:hover {
-  color: white;
-}
-
-/* Custom Visualization styling */
-.visualization-container {
-  border-radius: 0.375rem;
-  overflow: hidden;
-  border: 1px solid var(--nv-border);
-}
-
-/* Map */
-.map-card {
-  border-radius: 0.375rem;
-  overflow: hidden;
-}
-
-/* Forms and Inputs */
-.form-control:focus {
-  border-color: var(--nv-secondary);
-  box-shadow: 0 0 0 0.2rem rgba(54, 114, 164, 0.25);
-}
-
-/* Table styling */
-.table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(245, 247, 250, 0.5);
-}
-
-.table th {
-  background-color: #f8f9fa;
-  color: var(--nv-primary);
-  font-weight: 600;
+  color: var(--nv-accent);
 }
 
 /* Responsive adjustments */
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem;
+  }
+  
   .brand-title {
     font-size: 1.2rem;
   }
@@ -225,7 +313,44 @@ footer a:hover {
     font-size: 0.7rem;
   }
   
-  .dashboard-header {
-    padding: 1rem !important;
+  .premium-feature {
+    padding: 1.5rem;
+  }
+}
+
+/* Dark mode preference adjustments */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #111827;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  
+  .card {
+    background-color: var(--nv-dark);
+    color: var(--nv-text-on-dark);
+  }
+  
+  .card-title {
+    color: var(--nv-text-on-dark);
+  }
+  
+  .table {
+    color: var(--nv-text-on-dark);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .table thead th {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .form-control, .form-select {
+    background-color: var(--nv-dark);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--nv-text-on-dark);
+  }
+  
+  .btn-outline-secondary {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.8);
   }
 } 

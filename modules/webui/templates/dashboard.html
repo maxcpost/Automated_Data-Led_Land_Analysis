@@ -19,16 +19,16 @@
             <div class="container-fluid">
                 <span class="navbar-brand">
                     <div class="brand-logo">
-                        <i class="bi bi-building me-2"></i>
-                        <div>
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ADLA Logo" class="logo-image">
+                        <div class="brand-text">
                             <div class="brand-title">ADLA</div>
                             <div class="brand-subtitle">a New Vision project</div>
                         </div>
                     </div>
                 </span>
                 <div class="ms-auto d-flex align-items-center">
-                    <span class="badge bg-light text-dark me-3 analytics-badge">
-                        <i class="bi bi-bar-chart-fill text-primary me-1"></i>
+                    <span class="badge bg-secondary me-3 analytics-badge">
+                        <i class="bi bi-bar-chart-fill me-1"></i>
                         <span id="total-properties">0</span> Properties
                     </span>
                 </div>
@@ -42,7 +42,7 @@
             <div class="col-12">
                 <div class="dashboard-header p-4 rounded shadow-sm">
                     <h1 class="fs-3 mb-1">Property Analytics Dashboard</h1>
-                    <p class="text-muted mb-0">Analyze and compare property listings based on key metrics</p>
+                    <p class="mb-0">Analyze and compare property listings based on key metrics</p>
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="mb-0 card-title">Property Listings</h4>
                         <div id="filter-buttons" class="btn-group">
                             <button id="all-filter" class="btn btn-primary active">
@@ -70,7 +70,7 @@
                         <div class="row mb-3 g-2">
                             <div class="col-md-4">
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0">
+                                    <span class="input-group-text border-end-0">
                                         <i class="bi bi-search"></i>
                                     </span>
                                     <input type="text" id="search-input" class="form-control border-start-0" placeholder="Search properties...">
@@ -99,7 +99,7 @@
                                         <th data-bs-toggle="tooltip" title="Housing Gap (units per person)">Housing Gap</th>
                                         <th data-bs-toggle="tooltip" title="Home Affordability Gap">Affordability</th>
                                         <th data-bs-toggle="tooltip" title="Weighted Demand and Convenience">Convenience</th>
-                                        <th class="bg-info text-white">
+                                        <th class="text-white" style="background-color: var(--nv-accent); color: var(--nv-primary) !important;">
                                             <i class="bi bi-star-fill me-1"></i>Score
                                         </th>
                                     </tr>
@@ -107,7 +107,7 @@
                                 <tbody id="listings-data">
                                     <tr>
                                         <td colspan="9" class="text-center">
-                                            <div class="spinner-border text-primary my-5" role="status">
+                                            <div class="spinner-border my-5 loading-pulse" role="status" style="color: var(--nv-accent);">
                                                 <span class="visually-hidden">Loading...</span>
                                             </div>
                                             <p class="mt-2">Loading property data...</p>
@@ -141,9 +141,9 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="card shadow mb-4">
-                    <div class="card-header bg-white">
+                    <div class="card-header">
                         <h5 class="mb-0 card-title">
-                            <i class="bi bi-bar-chart-line me-2 text-primary"></i>
+                            <i class="bi bi-bar-chart-line me-2" style="color: var(--nv-accent);"></i>
                             Composite Score Distribution
                         </h5>
                     </div>
@@ -154,9 +154,9 @@
             </div>
             <div class="col-md-6">
                 <div class="card shadow mb-4">
-                    <div class="card-header bg-white">
+                    <div class="card-header">
                         <h5 class="mb-0 card-title">
-                            <i class="bi bi-currency-dollar me-2 text-success"></i>
+                            <i class="bi bi-currency-dollar me-2" style="color: var(--nv-accent);"></i>
                             Price Per Acre Distribution
                         </h5>
                     </div>
@@ -167,13 +167,33 @@
             </div>
         </div>
         
+        <!-- Premium Feature Callout -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="premium-feature">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="mb-3"><i class="bi bi-stars me-2"></i>AI-Powered Analysis</h3>
+                            <p class="mb-3">Our advanced AI algorithms analyze property metrics to identify high-potential investment opportunities based on demographics, market trends, and location convenience.</p>
+                            <button class="btn btn-light">
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Try AI Analysis
+                            </button>
+                        </div>
+                        <div class="col-md-4 d-none d-md-block text-center">
+                            <i class="bi bi-cpu" style="font-size: 5rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Dashboard Insights -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow">
-                    <div class="card-header bg-white">
+                    <div class="card-header">
                         <h5 class="mb-0 card-title">
-                            <i class="bi bi-lightbulb me-2 text-warning"></i>
+                            <i class="bi bi-lightbulb me-2" style="color: var(--nv-accent);"></i>
                             Analytics Insights
                         </h5>
                     </div>
@@ -181,13 +201,13 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="p-3 rounded bg-light">
-                                    <h6 class="text-primary"><i class="bi bi-info-circle me-2"></i>Composite Score</h6>
+                                    <h6 style="color: var(--nv-primary);"><i class="bi bi-info-circle me-2"></i>Composite Score</h6>
                                     <p class="mb-0 small">The Composite Score is calculated using an equal weighting (25% each) of Demand for Attainable Rent, Housing Gap, Home Affordability Gap, and Weighted Demand and Convenience metrics.</p>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="p-3 rounded bg-light">
-                                    <h6 class="text-primary"><i class="bi bi-geo-alt me-2"></i>Location Analysis</h6>
+                                    <h6 style="color: var(--nv-primary);"><i class="bi bi-geo-alt me-2"></i>Location Analysis</h6>
                                     <p class="mb-0 small">Click on any property's Stock Number to view detailed demographics, analytics metrics, and interactive maps for that specific location.</p>
                                 </div>
                             </div>
@@ -198,9 +218,19 @@
         </div>
     </div>
 
-    <footer class="bg-light text-center text-muted p-3 mt-4">
+    <footer class="text-center p-4 mt-5">
         <div class="container">
-            <p class="mb-0">© 2023 ADLA - Automated Data-Led Land Analysis | <a href="#" class="text-decoration-none">A New Vision Development Group Project</a></p>
+            <div class="row">
+                <div class="col-12">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ADLA Logo" height="40" class="mb-3">
+                    <p class="mb-2">© 2023 ADLA - Automated Data-Led Land Analysis</p>
+                    <p class="small mb-0">
+                        <a href="#" class="text-decoration-none me-3">A New Vision Development Group Project</a>
+                        <a href="#" class="text-decoration-none me-3">Privacy Policy</a>
+                        <a href="#" class="text-decoration-none">Terms of Service</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
 

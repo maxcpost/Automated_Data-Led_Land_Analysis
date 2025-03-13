@@ -306,4 +306,234 @@ canvas {
     opacity: 0.9;
     font-weight: 300;
     margin-bottom: 0;
+}
+
+/* Main Content Styling */
+.dashboard-header {
+    padding: 1.75rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.dashboard-header p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.dashboard-header:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(241, 193, 98, 0.15) 0%, rgba(241, 193, 98, 0) 100%);
+    z-index: 1;
+}
+
+/* Card styling */
+.card {
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+/* Property Listings Table */
+#listings-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+#listings-table thead th {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 1rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+#listings-table tbody tr {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#listings-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 4;
+    position: relative;
+}
+
+#listings-table tbody td {
+    padding: 0.85rem 0.75rem;
+    vertical-align: middle;
+}
+
+.score-cell {
+    font-weight: 700;
+    color: var(--nv-accent);
+}
+
+.stock-number {
+    font-weight: 600;
+    color: var(--nv-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(241, 193, 98, 0.1);
+    border-radius: 4px;
+}
+
+.stock-number:hover {
+    color: var(--nv-accent);
+    background-color: rgba(241, 193, 98, 0.2);
+}
+
+/* Filter Buttons */
+#filter-buttons .btn {
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+}
+
+#filter-buttons .btn.active {
+    background-color: var(--nv-primary) !important;
+    border-color: var(--nv-primary) !important;
+    color: white !important;
+}
+
+/* Search and Sort */
+#search-input {
+    transition: box-shadow 0.3s ease;
+}
+
+#search-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(241, 193, 98, 0.25);
+}
+
+/* Chart Styling */
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Empty State */
+#empty-state {
+    padding: 3rem 0;
+}
+
+#empty-state i {
+    font-size: 3rem;
+    color: rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+/* Loading Animation */
+.loading-pulse {
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 1.25rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    #filter-buttons {
+        margin-top: 1rem;
+        width: 100%;
+    }
+    
+    #filter-buttons .btn {
+        flex: 1;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: start !important;
+    }
+    
+    .card-title {
+        margin-bottom: 1rem;
+    }
+    
+    #listings-table {
+        font-size: 0.85rem;
+    }
+    
+    #listings-table thead th,
+    #listings-table tbody td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+/* Premium Feature */
+.premium-feature {
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding: 2rem;
+}
+
+.premium-feature h3 {
+    color: white;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.premium-feature p {
+    color: rgba(255, 255, 255, 0.9);
+    position: relative;
+    z-index: 1;
+}
+
+.premium-feature i.bi-cpu {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+/* Tooltip styling */
+.tooltip {
+    font-family: var(--nv-font-secondary);
 } 

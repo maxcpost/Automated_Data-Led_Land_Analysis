@@ -257,4 +257,239 @@ dl dd {
     .nav-pills .nav-item {
         display: inline-block;
     }
+}
+
+/* Property Page Styling */
+
+/* Property Header */
+.property-header {
+    padding: 1.5rem;
+    border-radius: 10px;
+    background-color: var(--nv-primary);
+    color: #fff;
+    margin-bottom: 2rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.property-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 0.5rem;
+}
+
+.stock-badge {
+    background-color: var(--nv-accent);
+    color: var(--nv-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    vertical-align: middle;
+}
+
+/* Property Stats */
+.property-stats {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    padding: 0.5rem 0;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-bottom: 0.2rem;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 0 1.2rem;
+}
+
+.score-value {
+    color: var(--nv-accent);
+    font-weight: 700;
+}
+
+/* Demographics Cards */
+.demo-card {
+    background-color: var(--nv-primary);
+    border-radius: 10px;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.demo-card:hover {
+    transform: translateY(-5px);
+}
+
+.demo-card-inner {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: #fff;
+}
+
+.demo-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--nv-accent);
+}
+
+.demo-data h6 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.7rem;
+    opacity: 0.8;
+}
+
+.demo-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.demo-change {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.demo-change.positive {
+    color: #4caf50;
+}
+
+.demo-change.negative {
+    color: #f44336;
+}
+
+/* Score Items */
+.score-item .progress {
+    height: 8px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-item .progress-bar {
+    background-color: var(--nv-accent);
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+}
+
+.composite-score {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--nv-accent);
+}
+
+/* Maps */
+#property-map,
+#conveniences-map {
+    border-radius: 0 0 8px 8px;
+}
+
+.poi-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+/* Loading Animation */
+.loading-pulse {
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+}
+
+/* Insights List */
+.insight-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.insight-list li {
+    padding: 1rem;
+    border-left: 3px solid var(--nv-accent);
+    background-color: rgba(0, 0, 0, 0.02);
+    margin-bottom: 1rem;
+    border-radius: 0 6px 6px 0;
+}
+
+.insight-list li:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.insight-loading {
+    color: #888;
+    font-style: italic;
+}
+
+/* Financial Table */
+.financial-table td {
+    padding: 0.8rem 1rem;
+    vertical-align: middle;
+}
+
+.financial-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .property-stats {
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        width: 50%;
+        padding: 0.5rem;
+    }
+    
+    .stat-divider {
+        display: none;
+    }
+    
+    .property-title {
+        font-size: 1.5rem;
+    }
+    
+    .demo-card {
+        margin-bottom: 1rem;
+    }
 } 
