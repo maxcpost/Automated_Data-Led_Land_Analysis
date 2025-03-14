@@ -1,233 +1,265 @@
 {% extends "base.html" %}
 
-{% block title %}Opportunity Assessment Dashboard{% endblock %}
+{% block title %}ADLA - Opportunity Analysis{% endblock %}
 
 {% block head %}
-{{ super() }}
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="{{ url_for('static', filename='js/opportunity-dashboard.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/property.css') }}">
 <style>
-    .dashboard-container {
-        padding: 20px;
-    }
-    
-    .dashboard-header {
-        margin-bottom: 30px;
-        border-radius: var(--adla-radius-lg);
-        background: var(--adla-dark);
-        color: var(--adla-white);
-        box-shadow: var(--adla-shadow-lg);
-        padding: 2rem !important;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .dashboard-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 300px;
-        height: 100%;
-        background: linear-gradient(135deg, transparent 0%, rgba(241, 193, 98, 0.1) 100%);
-        clip-path: polygon(100% 0, 100% 100%, 0 100%);
-        z-index: 1;
-    }
-    
-    .dashboard-header h1 {
-        position: relative;
-        z-index: 2;
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-        color: var(--adla-white);
-    }
-    
-    .dashboard-header p {
-        position: relative;
-        z-index: 2;
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 1.1rem;
-        max-width: 80%;
-        margin-bottom: 0;
-    }
-    
-    .visualization-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -15px;
-    }
-    
-    .visualization-card {
-        flex: 1 1 calc(50% - 30px);
-        margin: 15px;
-        background: white;
-        border-radius: var(--adla-radius-lg);
-        box-shadow: var(--adla-shadow-md);
-        overflow: hidden;
-        min-width: 300px;
-        transition: var(--adla-transition-normal);
-    }
-    
-    .visualization-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--adla-shadow-lg);
-    }
-    
-    .visualization-header {
-        padding: 15px 20px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        background: var(--adla-white);
-        display: flex;
-        align-items: center;
-    }
-    
-    .visualization-header i {
-        color: var(--adla-accent);
-        margin-right: 8px;
-    }
-    
-    .visualization-header h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--adla-dark);
-    }
-    
-    .visualization-container {
-        height: 400px;
-        padding: 20px;
-    }
-    
-    .property-selector-container {
-        margin-bottom: 30px;
-        padding: 20px;
-        background: white;
-        border-radius: var(--adla-radius-lg);
-        box-shadow: var(--adla-shadow-md);
-        border-left: 4px solid var(--adla-accent);
-    }
-    
-    .property-selector-label {
-        font-weight: 600;
-        margin-bottom: 10px;
-        color: var(--adla-dark);
-    }
-    
-    select.property-selector {
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: var(--adla-radius-md);
-        padding: 0.65rem 1rem;
-        font-size: 0.95rem;
-        transition: var(--adla-transition-normal);
-        box-shadow: var(--adla-shadow-sm);
-    }
-    
-    select.property-selector:focus {
-        border-color: var(--adla-accent);
-        box-shadow: 0 0 0 0.25rem rgba(241, 193, 98, 0.25);
-    }
-    
     .loading-spinner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-    
-    .spinner {
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
-        border-top: 4px solid var(--adla-accent);
+        display: inline-block;
         width: 40px;
         height: 40px;
-        animation: spin 1s linear infinite;
-        margin-bottom: 15px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--adla-accent);
+        animation: spin 1s ease-in-out infinite;
     }
-    
+
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        to { transform: rotate(360deg); }
     }
-    
-    .error-message {
-        padding: 20px;
-        text-align: center;
-        color: #721c24;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 4px;
+
+    .ai-analysis {
+        display: none;
+        animation: fadeIn 0.5s ease-out forwards;
     }
-    
-    .error-message button {
-        margin-top: 10px;
-        padding: 8px 16px;
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .metric-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .opportunity-score {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .generate-report {
         background-color: var(--adla-accent);
         color: var(--adla-dark);
+        font-weight: 600;
         border: none;
-        border-radius: 4px;
-        cursor: pointer;
+        transition: all 0.3s ease;
     }
-    
-    @media (max-width: 992px) {
-        .visualization-card {
-            flex: 1 1 100%;
-        }
+
+    .generate-report:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(217, 169, 78, 0.3);
+        background-color: var(--adla-accent-light);
+    }
+
+    .analysis-section {
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .analysis-section:hover {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="dashboard-header">
-        <h1>Opportunity Assessment Dashboard</h1>
-        <p>Analyze and compare property opportunities with interactive visualizations</p>
-    </div>
-    
-    <div class="property-selector-container">
-        <div class="property-selector-label">
-            <i class="bi bi-building text-accent me-2"></i>
-            Select Property:
-        </div>
-        <select id="property-selector" class="form-select property-selector">
-            <option value="">Loading properties...</option>
-        </select>
-    </div>
-    
-    <div class="visualization-row">
-        <div class="visualization-card">
-            <div class="visualization-header">
-                <i class="bi bi-graph-up"></i>
-                <h3>Opportunity Quadrant</h3>
-            </div>
-            <div id="opportunity-quadrant" class="visualization-container"></div>
-        </div>
-        
-        <div class="visualization-card">
-            <div class="visualization-header">
-                <i class="bi bi-bar-chart"></i>
-                <h3>Housing Gap vs Growth</h3>
-            </div>
-            <div id="housing-gap-growth" class="visualization-container"></div>
+    <div class="property-header">
+        <div class="mb-4">
+            <h1 class="property-title">Opportunity Analysis</h1>
+            <p class="lead text-muted">Analyze the investment potential of multiple properties at once</p>
         </div>
     </div>
-    
-    <div class="visualization-row mt-4">
-        <div class="visualization-card">
-            <div class="visualization-header">
-                <i class="bi bi-pie-chart"></i>
-                <h3>Demand Breakdown</h3>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card property-card analysis-section">
+                <div class="card-body">
+                    <h2 class="mb-4">Selected Properties</h2>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Location</th>
+                                    <th>Price</th>
+                                    <th>Size</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="property-mini-img me-3" style="background-image: url({{ url_for('static', filename='images/property1.jpg') }})"></div>
+                                            <span>Seaside Heights</span>
+                                        </div>
+                                    </td>
+                                    <td>Malibu, CA</td>
+                                    <td>$4,500,000</td>
+                                    <td>2.4 acres</td>
+                                    <td><span class="badge bg-accent text-dark">8.4</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="property-mini-img me-3" style="background-image: url({{ url_for('static', filename='images/property2.jpg') }})"></div>
+                                            <span>Mountain View Estate</span>
+                                        </div>
+                                    </td>
+                                    <td>Aspen, CO</td>
+                                    <td>$6,200,000</td>
+                                    <td>5.1 acres</td>
+                                    <td><span class="badge bg-accent text-dark">9.2</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="property-mini-img me-3" style="background-image: url({{ url_for('static', filename='images/property3.jpg') }})"></div>
+                                            <span>Urban Development Plot</span>
+                                        </div>
+                                    </td>
+                                    <td>Austin, TX</td>
+                                    <td>$2,800,000</td>
+                                    <td>1.8 acres</td>
+                                    <td><span class="badge bg-accent text-dark">7.8</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button id="generate-analysis" class="btn generate-report btn-lg">
+                            <i class="bi bi-graph-up me-2"></i>Generate Opportunity Analysis
+                        </button>
+                    </div>
+
+                    <div id="loading" class="text-center my-5 py-3" style="display: none;">
+                        <div class="loading-spinner mb-3"></div>
+                        <h4 class="mb-2">Generating Analysis</h4>
+                        <p class="text-muted">Our AI is analyzing investment potential across your selected properties...</p>
+                    </div>
+
+                    <div id="analysis-results" class="ai-analysis mt-5">
+                        <h3 class="mb-4 border-bottom pb-3">Portfolio Opportunity Analysis</h3>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card metric-card">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-uppercase text-muted mb-2">Portfolio Score</h6>
+                                        <div class="opportunity-score text-accent">8.5</div>
+                                        <p class="mt-2 mb-0">Excellent investment potential</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card metric-card">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-uppercase text-muted mb-2">Total Investment</h6>
+                                        <div class="opportunity-score text-accent">$13.5M</div>
+                                        <p class="mt-2 mb-0">Capital required</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card metric-card">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-uppercase text-muted mb-2">Estimated ROI</h6>
+                                        <div class="opportunity-score text-accent">22%</div>
+                                        <p class="mt-2 mb-0">5-year projection</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="analysis-section p-4 mb-4">
+                            <h4 class="mb-3">Market Trends Analysis</h4>
+                            <p>These properties show strong appreciation potential based on historical data and current market conditions. The portfolio balances urban development with premium locations, creating a diversified investment approach.</p>
+                            <ul class="list-group list-group-flush mt-3">
+                                <li class="list-group-item bg-transparent">
+                                    <i class="bi bi-arrow-up-right text-accent me-2"></i>
+                                    <strong>Malibu:</strong> Luxury coastal properties have shown 12% average annual appreciation over the last decade
+                                </li>
+                                <li class="list-group-item bg-transparent">
+                                    <i class="bi bi-arrow-up-right text-accent me-2"></i>
+                                    <strong>Aspen:</strong> Premium mountain properties maintain strong demand with limited supply
+                                </li>
+                                <li class="list-group-item bg-transparent">
+                                    <i class="bi bi-arrow-up-right text-accent me-2"></i>
+                                    <strong>Austin:</strong> Tech industry growth continues to drive property values upward
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="analysis-section p-4 mb-4">
+                            <h4 class="mb-3">Risk Assessment</h4>
+                            <p>The selected portfolio presents a balanced risk profile with the following considerations:</p>
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Property</th>
+                                            <th>Risk Level</th>
+                                            <th>Key Considerations</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Seaside Heights</td>
+                                            <td><span class="badge bg-dark text-white">Medium</span></td>
+                                            <td>Climate change, coastal regulations, high entry price</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mountain View Estate</td>
+                                            <td><span class="badge bg-dark text-white">Low</span></td>
+                                            <td>Limited seasonal demand, stable luxury market</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Urban Development Plot</td>
+                                            <td><span class="badge bg-dark text-white">Medium-Low</span></td>
+                                            <td>Zoning changes, competition, development costs</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-section p-4">
+                            <h4 class="mb-3">Recommended Strategy</h4>
+                            <p>Based on AI analysis of current market conditions and property attributes, we recommend:</p>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title text-accent">Phased Development Approach</h5>
+                                    <p class="card-text">Begin with the Austin property development to generate shorter-term returns while the premium properties in Malibu and Aspen appreciate.</p>
+                                </div>
+                            </div>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title text-accent">Luxury Market Positioning</h5>
+                                    <p class="card-text">Target high-end development for all properties, with sustainable and premium amenities to maximize ROI in these markets.</p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title text-accent">Portfolio Balancing</h5>
+                                    <p class="card-text">Consider adding one urban high-density property to further diversify and balance the portfolio risk profile.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="demand-breakdown" class="visualization-container"></div>
-        </div>
-        
-        <div class="visualization-card">
-            <div class="visualization-header">
-                <i class="bi bi-ladder"></i>
-                <h3>Opportunity Score Comparison</h3>
-            </div>
-            <div id="score-comparison" class="visualization-container"></div>
         </div>
     </div>
 </div>
@@ -236,7 +268,20 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        initOpportunityDashboard();
+        const generateBtn = document.getElementById('generate-analysis');
+        const loadingEl = document.getElementById('loading');
+        const resultsEl = document.getElementById('analysis-results');
+        
+        generateBtn.addEventListener('click', function() {
+            generateBtn.style.display = 'none';
+            loadingEl.style.display = 'block';
+            
+            // Simulate API call delay
+            setTimeout(function() {
+                loadingEl.style.display = 'none';
+                resultsEl.style.display = 'block';
+            }, 2500);
+        });
     });
 </script>
 {% endblock %} 
