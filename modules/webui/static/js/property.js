@@ -5,10 +5,18 @@ let propertyMap = null;
 let fullPropertyMap = null;
 let propertyMarker = null;
 let propertyData = null;
+let mapsLoadingAttempted = false;
+let mapsLoadedSuccessfully = false;
+let mapLoadStartTime = null;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    // STOCK_NUMBER is set in the HTML template
+    console.log("DOM content loaded - initializing property page");
+    
+    // Record when we start trying to load the map
+    mapLoadStartTime = Date.now();
+    
+    // STOCK_NUMBER and GOOGLE_MAPS_API_KEY are set in the HTML template
     loadPropertyData(STOCK_NUMBER);
     
     // Set up header stock number
@@ -31,20 +39,109 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Make sure the map refreshes when the tab is shown - this is critical for Google Maps to render correctly
     document.getElementById('fullmap-tab')?.addEventListener('shown.bs.tab', function() {
+        console.log("Full map tab shown - refreshing map");
         if (fullPropertyMap && propertyData && propertyData.map) {
             setTimeout(function() {
-                google.maps.event.trigger(fullPropertyMap, 'resize');
-                fullPropertyMap.setCenter({
-                    lat: parseFloat(propertyData.map.latitude),
-                    lng: parseFloat(propertyData.map.longitude)
-                });
-            }, 50);
+                try {
+                    google.maps.event.trigger(fullPropertyMap, 'resize');
+                    fullPropertyMap.setCenter({
+                        lat: parseFloat(propertyData.map.latitude),
+                        lng: parseFloat(propertyData.map.longitude)
+                    });
+                    console.log("Successfully resized full property map");
+                } catch (error) {
+                    console.error("Error resizing map:", error);
+                    showMapError();
+                }
+            }, 200); // Increased delay to ensure map is visible
+        } else {
+            console.log("Cannot refresh map - map or property data not available");
+            
+            // If it's been more than 20 seconds since page load and maps still aren't available, 
+            // try a more aggressive approach to load them
+            const timeElapsed = Date.now() - mapLoadStartTime;
+            if (timeElapsed > 20000 && !mapsLoadedSuccessfully && propertyData && propertyData.map) {
+                console.log("Maps not loaded after 20 seconds - attempting forceful reload");
+                loadGoogleMapsScript(true); // Force reload
+            }
         }
     });
+    
+    // Check if Google Maps is available after a delay
+    setTimeout(checkGoogleMapsAvailability, 3000);
 });
+
+// Check if Google Maps API is available
+function checkGoogleMapsAvailability() {
+    console.log("Checking Google Maps availability");
+    if (!window.google || !window.google.maps) {
+        console.warn("Google Maps not available after timeout - falling back to manual initialization");
+        if (!mapsLoadingAttempted) {
+            mapsLoadingAttempted = true;
+            // Try to load the script manually
+            loadGoogleMapsScript(false);
+        } else {
+            showMapError("Maps API could not be loaded. Please check your internet connection.");
+        }
+    } else {
+        console.log("Google Maps is available");
+        mapsLoadedSuccessfully = true;
+        
+        // If map data is available but maps weren't initialized, do it now
+        if (propertyData && propertyData.map && !propertyMap) {
+            console.log("Maps API is loaded but maps not initialized yet - initializing now");
+            initializePropertyMap(propertyData.map.latitude, propertyData.map.longitude);
+        }
+    }
+}
+
+// Manually load Google Maps script
+function loadGoogleMapsScript(forceReload) {
+    console.log("Manually loading Google Maps script, force reload:", forceReload);
+    
+    // If we're forcing a reload, remove any existing Google Maps scripts
+    if (forceReload) {
+        const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+        existingScripts.forEach(script => {
+            console.log("Removing existing Google Maps script");
+            script.parentNode.removeChild(script);
+        });
+    }
+    
+    // Create new script
+    const script = document.createElement('script');
+    
+    // Make sure we have the API key
+    if (typeof GOOGLE_MAPS_API_KEY === 'undefined') {
+        console.error("Google Maps API key is not defined");
+        showMapError("Map configuration error - API key not found");
+        return;
+    }
+    
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=manualInitMap&v=weekly`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = function() {
+        console.error("Failed to load Google Maps script");
+        showMapError("Failed to load map. Please refresh the page or check your internet connection.");
+    };
+    document.head.appendChild(script);
+    console.log("Added Google Maps script to page");
+}
+
+// Manual initialization when script is loaded
+function manualInitMap() {
+    console.log("Manual init map callback fired");
+    mapsLoaded = true;
+    mapsLoadedSuccessfully = true;
+    if (propertyData && propertyData.map) {
+        initializePropertyMap(propertyData.map.latitude, propertyData.map.longitude);
+    }
+}
 
 // Load property data from API
 function loadPropertyData(stockNumber) {
+    console.log(`Loading property data for stock number: ${stockNumber}`);
     fetch(`/api/property/${stockNumber}`)
         .then(response => {
             if (!response.ok) {
@@ -53,9 +150,16 @@ function loadPropertyData(stockNumber) {
             return response.json();
         })
         .then(data => {
+            console.log("Property data loaded successfully");
             propertyData = data;
             renderPropertyDetails(data);
             showPropertyDetail();
+            
+            // If Google Maps is already loaded, initialize maps
+            if (window.google && window.google.maps && data.map) {
+                console.log("Google Maps already loaded, initializing maps now");
+                initializePropertyMap(data.map.latitude, data.map.longitude);
+            }
         })
         .catch(error => {
             console.error('Error loading property data:', error);
@@ -222,12 +326,25 @@ function renderPropertyDetails(data) {
     
     // Initialize map if coordinates are available
     if (data.map) {
-        initializePropertyMap(data.map.latitude, data.map.longitude);
+        console.log("Property has map coordinates, initializing map");
+        if (window.google && window.google.maps) {
+            initializePropertyMap(data.map.latitude, data.map.longitude);
+        } else {
+            console.log("Google Maps not available yet, waiting for it to load");
+            // Update map placeholders to show loading state
+            document.querySelectorAll('#map-placeholder').forEach(placeholder => {
+                placeholder.style.display = 'flex';
+                const textElement = placeholder.querySelector('p');
+                if (textElement) {
+                    textElement.innerHTML = '<i class="bi bi-arrow-repeat me-2 spin"></i>Loading map...';
+                    textElement.style.color = '#0e1f30';
+                }
+            });
+        }
     } else {
+        console.warn("No map coordinates available for property");
         // Hide map if no coordinates
-        document.getElementById('map-placeholder').style.display = 'block';
-        document.getElementById('property-map').style.display = 'none';
-        document.getElementById('full-property-map').innerHTML = '<div class="alert alert-warning">No coordinates available for this property</div>';
+        showMapError("No coordinates available for this property");
         
         // Disable map controls
         document.querySelectorAll('.map-controls button').forEach(btn => {
@@ -275,14 +392,35 @@ function renderCategoryTable(elementId, categoryData) {
     });
 }
 
+// Show map error message
+function showMapError(message = "Map could not be loaded. Please refresh the page.") {
+    console.warn("Showing map error:", message);
+    
+    // Show placeholder with error message
+    const placeholders = document.querySelectorAll('#map-placeholder');
+    placeholders.forEach(placeholder => {
+        placeholder.style.display = 'flex';
+        const textElement = placeholder.querySelector('p');
+        if (textElement) {
+            textElement.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i>${message}`;
+            textElement.style.color = '#dc3545';
+        }
+    });
+    
+    // Hide map containers
+    document.getElementById('property-map').style.display = 'none';
+    document.getElementById('full-property-map').style.display = 'none';
+}
+
 // Initialize Google Maps for property location
 let mapsLoaded = false;
 let mapLoadAttempts = 0;
 const MAX_MAP_LOAD_ATTEMPTS = 5;
 
 function initMap() {
-    console.log("Google Maps API loaded");
+    console.log("Google Maps API callback fired - maps loaded");
     mapsLoaded = true;
+    mapsLoadedSuccessfully = true;
     
     // Check if we already have data and need to initialize maps
     if (propertyData && propertyData.map) {
@@ -292,7 +430,34 @@ function initMap() {
 
 // Initialize the property map with coordinates
 function initializePropertyMap(latitude, longitude) {
-    if (!mapsLoaded) {
+    console.log("Initializing property map", { latitude, longitude, mapsLoaded });
+    
+    // If the maps have already been initialized, don't try again
+    if (propertyMap && fullPropertyMap) {
+        console.log("Maps already initialized, triggering resize");
+        try {
+            google.maps.event.trigger(propertyMap, 'resize');
+            google.maps.event.trigger(fullPropertyMap, 'resize');
+            return;
+        } catch (e) {
+            console.error("Error resizing maps:", e);
+            // Continue with initialization as fallback
+        }
+    }
+    
+    // Display loading state
+    document.querySelectorAll('#map-placeholder').forEach(placeholder => {
+        placeholder.style.display = 'flex';
+        const textElement = placeholder.querySelector('p');
+        if (textElement) {
+            textElement.innerHTML = '<i class="bi bi-arrow-repeat me-2 spin"></i>Loading map...';
+            textElement.style.color = '#0e1f30';
+        }
+    });
+    
+    if (!window.google || !window.google.maps) {
+        console.warn("Google Maps not loaded yet");
+        
         // If Google Maps isn't loaded yet, wait a bit and retry
         if (mapLoadAttempts < MAX_MAP_LOAD_ATTEMPTS) {
             mapLoadAttempts++;
@@ -300,9 +465,7 @@ function initializePropertyMap(latitude, longitude) {
             setTimeout(() => initializePropertyMap(latitude, longitude), 1000);
         } else {
             console.error("Failed to load Google Maps after multiple attempts");
-            document.getElementById('map-placeholder').style.display = 'flex';
-            document.getElementById('property-map').style.display = 'none';
-            document.getElementById('map-placeholder').querySelector('p').textContent = 'Map could not be loaded. Please refresh the page.';
+            showMapError("Map could not be loaded. Please check your internet connection and refresh the page.");
         }
         return;
     }
@@ -310,6 +473,22 @@ function initializePropertyMap(latitude, longitude) {
     console.log("Initializing map with coordinates:", latitude, longitude);
     
     try {
+        // Add a spinning class for loading indicators
+        if (!document.querySelector('.spin-style')) {
+            const style = document.createElement('style');
+            style.className = 'spin-style';
+            style.textContent = `
+                .spin {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
         // Ensure coordinates are valid numbers
         latitude = parseFloat(latitude);
         longitude = parseFloat(longitude);
@@ -321,9 +500,13 @@ function initializePropertyMap(latitude, longitude) {
         const propertyLocation = { lat: latitude, lng: longitude };
         
         // Hide placeholder and show map
-        document.getElementById('map-placeholder').style.display = 'none';
+        document.querySelectorAll('#map-placeholder').forEach(placeholder => {
+            placeholder.style.display = 'none';
+        });
         document.getElementById('property-map').style.display = 'block';
+        document.getElementById('full-property-map').style.display = 'block';
         
+        console.log("Creating small map instance");
         // Small map in the header
         propertyMap = new google.maps.Map(document.getElementById('property-map'), {
             center: propertyLocation,
@@ -332,9 +515,12 @@ function initializePropertyMap(latitude, longitude) {
             mapTypeControl: false,
             streetViewControl: false,
             fullscreenControl: false,
-            zoomControl: false
+            zoomControl: false,
+            gestureHandling: 'cooperative',
+            disableDefaultUI: false
         });
         
+        console.log("Creating full interactive map instance");
         // Full interactive map
         fullPropertyMap = new google.maps.Map(document.getElementById('full-property-map'), {
             center: propertyLocation,
@@ -342,9 +528,12 @@ function initializePropertyMap(latitude, longitude) {
             mapTypeId: google.maps.MapTypeId.HYBRID,
             mapTypeControl: true,
             streetViewControl: true,
-            fullscreenControl: true
+            fullscreenControl: true,
+            gestureHandling: 'greedy',
+            disableDefaultUI: false
         });
         
+        console.log("Adding marker to small map");
         // Create marker for both maps
         propertyMarker = new google.maps.Marker({
             position: propertyLocation,
@@ -353,6 +542,7 @@ function initializePropertyMap(latitude, longitude) {
             animation: google.maps.Animation.DROP
         });
         
+        console.log("Adding marker to full map");
         // Add marker to the full map
         const fullMapMarker = new google.maps.Marker({
             position: propertyLocation,
@@ -367,11 +557,11 @@ function initializePropertyMap(latitude, longitude) {
         // Add info window to the full map marker
         const infoContent = `
             <div style="padding: 10px; max-width: 250px;">
-                <h5 style="margin-top: 0; color: var(--primary-color); font-weight: bold;">${propertyData.summary.stockNumber}</h5>
+                <h5 style="margin-top: 0; color: #0e1f30; font-weight: bold;">${propertyData.summary.stockNumber}</h5>
                 <p style="margin-bottom: 8px;"><strong>Location:</strong> ${propertyData.summary.location}</p>
                 <p style="margin-bottom: 8px;"><strong>Price:</strong> ${propertyData.summary.price}</p>
                 <p style="margin-bottom: 8px;"><strong>Area:</strong> ${propertyData.summary.acres} acres</p>
-                <div style="margin-top: 8px; padding: 5px; background-color: var(--primary-color); color: white; border-radius: 4px; text-align: center;">
+                <div style="margin-top: 8px; padding: 5px; background-color: #0e1f30; color: white; border-radius: 4px; text-align: center;">
                     <strong>Score:</strong> ${propertyData.summary.score}
                 </div>
             </div>
@@ -390,23 +580,40 @@ function initializePropertyMap(latitude, longitude) {
         // Show info window by default
         infoWindow.open(fullPropertyMap, fullMapMarker);
         
-        // Make sure map is properly sized
-        google.maps.event.trigger(propertyMap, 'resize');
-        google.maps.event.trigger(fullPropertyMap, 'resize');
-        
-        console.log("Maps initialized successfully");
+        // Make sure maps are properly sized
+        console.log("Triggering resize events for maps");
+        setTimeout(() => {
+            try {
+                google.maps.event.trigger(propertyMap, 'resize');
+                google.maps.event.trigger(fullPropertyMap, 'resize');
+                
+                propertyMap.setCenter(propertyLocation);
+                fullPropertyMap.setCenter(propertyLocation);
+                
+                console.log("Maps initialized successfully");
+                
+                // Force map container to be visible by applying inline styles
+                document.getElementById('property-map').style.cssText = 'display: block; height: 200px; width: 100%; position: relative; z-index: 2;';
+                document.getElementById('full-property-map').style.cssText = 'display: block; height: 600px; width: 100%; position: relative; z-index: 2;';
+            } catch (e) {
+                console.error("Error resizing maps:", e);
+                showMapError("Error initializing map display");
+            }
+        }, 200);
     } catch (error) {
         console.error("Error initializing maps:", error);
-        document.getElementById('map-placeholder').style.display = 'flex';
-        document.getElementById('property-map').style.display = 'none';
-        document.getElementById('map-placeholder').querySelector('p').textContent = 'Error loading map: ' + error.message;
+        showMapError(`Error loading map: ${error.message}`);
     }
 }
 
 // Set map type (satellite or terrain)
 function setMapType(type) {
-    if (!fullPropertyMap) return;
+    if (!fullPropertyMap) {
+        console.warn("Cannot set map type - map not initialized");
+        return;
+    }
     
+    console.log(`Setting map type to ${type}`);
     if (type === 'satellite') {
         fullPropertyMap.setMapTypeId(google.maps.MapTypeId.HYBRID);
     } else if (type === 'terrain') {
@@ -416,9 +623,13 @@ function setMapType(type) {
 
 // Zoom map in or out
 function zoomMap(amount) {
-    if (!fullPropertyMap) return;
+    if (!fullPropertyMap) {
+        console.warn("Cannot zoom map - map not initialized");
+        return;
+    }
     
     const currentZoom = fullPropertyMap.getZoom();
+    console.log(`Zooming map from level ${currentZoom} to ${currentZoom + amount}`);
     fullPropertyMap.setZoom(currentZoom + amount);
 }
 

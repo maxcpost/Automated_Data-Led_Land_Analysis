@@ -653,6 +653,7 @@
     <!-- Store the stock number for the JavaScript -->
     <script>
         const STOCK_NUMBER = "{{ stock_number }}";
+        const GOOGLE_MAPS_API_KEY = "{{ google_maps_api_key }}";
     </script>
 
     <!-- Bootstrap, property scripts and animations -->
@@ -671,7 +672,8 @@
                     placeholder.style.display = 'flex';
                     const textElement = placeholder.querySelector('p');
                     if (textElement) {
-                        textElement.textContent = 'Google Maps could not be loaded. Please refresh the page.';
+                        textElement.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Google Maps could not be loaded. Please refresh the page.';
+                        textElement.style.color = '#dc3545';
                     }
                 });
                 

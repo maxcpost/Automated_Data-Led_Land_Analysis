@@ -89,7 +89,7 @@
     background: linear-gradient(135deg, #3672a4, #0f3a62) !important;
 }
 
-/* Map styling */
+/* Map styling - FIXED */
 .map-card {
     overflow: hidden;
     border-radius: 0.75rem;
@@ -97,7 +97,8 @@
     box-shadow: var(--card-shadow);
     transition: transform var(--transition-speed);
     position: relative; /* Ensure proper positioning context */
-    min-height: 200px; /* Ensure minimum height for map visibility */
+    min-height: 250px; /* INCREASED height for better visibility */
+    background-color: #f8f9fa; /* Light background even before map loads */
 }
 
 .map-card:hover {
@@ -105,16 +106,18 @@
 }
 
 #map-placeholder {
-    height: 200px;
+    height: 100%;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 5; /* Lower z-index so it doesn't block the map */
-    background-color: #f0f2f5; 
+    z-index: 1; /* Lower z-index to stay behind map */
+    background-color: rgba(240, 242, 245, 0.5); /* Semi-transparent */
     display: flex;
     align-items: center;
     justify-content: center;
+    border: none; /* REMOVE any borders */
+    outline: none; /* REMOVE any outlines */
 }
 
 #map-placeholder p {
@@ -124,11 +127,12 @@
 
 #property-map, #full-property-map {
     position: relative;
-    z-index: 10; /* Higher z-index to ensure it's visible */
-    border-radius: 0.5rem;
-    height: 100%; /* Ensure it takes full height */
+    z-index: 2; /* Higher z-index to ensure it's visible above placeholder */
+    height: 100%; /* Fill entire container */
     width: 100%;
     background-color: #f8f9fa; /* Light background in case map doesn't load */
+    border: none !important; /* REMOVE any borders */
+    outline: none !important; /* REMOVE any outlines */
 }
 
 #property-map {
@@ -140,6 +144,7 @@
     box-shadow: var(--card-shadow);
     height: 600px !important;
     min-height: 400px; /* Ensure minimum height even on smaller screens */
+    border: none !important; /* REMOVE any borders */
 }
 
 /* Override Google Maps UI elements to work better with our design */
@@ -149,12 +154,18 @@
 
 /* Fix issue where Google Maps controls might be missing */
 .gm-control-active, .gmnoprint, .gm-fullscreen-control {
-    z-index: 20 !important; /* Ensure controls are visible */
+    z-index: 100 !important; /* INCREASED z-index to ensure controls are visible */
 }
 
 /* Make sure map appears on fullscreen view */
 .gm-style-pbc, .gm-style-pbt {
-    z-index: 30 !important;
+    z-index: 200 !important; /* INCREASED z-index */
+}
+
+/* Remove any borders from map containers */
+#property-map div, #full-property-map div {
+    border: none !important;
+    outline: none !important;
 }
 
 /* Navigation tabs - fix for duplicate underlines */
@@ -514,41 +525,38 @@ a:hover {
 
 /* Fix duplicate underlines in tabs */
 .nav-tabs {
-    border-bottom: none;
+    border-bottom: none !important;
+}
+
+/* COMPLETELY REMOVE TAB UNDERLINES to prevent "two lines" */
+.nav-tabs .nav-link::after {
+    display: none !important;
 }
 
 .nav-tabs .nav-link {
     font-weight: 600;
     color: #6c757d;
     padding: 0.75rem 1.25rem;
-    border: none;
+    border: none !important;
     border-radius: 0;
     position: relative;
     transition: color 0.2s ease;
 }
 
-.nav-tabs .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
 .nav-tabs .nav-link:hover {
     color: var(--accent-color);
-    border: none;
+    border: none !important;
+    background-color: rgba(233, 182, 74, 0.1);
 }
 
 .nav-tabs .nav-link.active {
     color: var(--accent-color);
-    background-color: transparent;
-    border: none;
+    background-color: rgba(233, 182, 74, 0.15);
+    border: none !important;
+    position: relative;
 }
 
+/* Hide any visible lines from nav tabs */
 .nav-tabs .nav-link.active::after {
-    background-color: var(--accent-color);
+    display: none !important;
 } 
