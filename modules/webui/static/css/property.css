@@ -96,6 +96,8 @@
     border: none;
     box-shadow: var(--card-shadow);
     transition: transform var(--transition-speed);
+    position: relative; /* Ensure proper positioning context */
+    min-height: 200px; /* Ensure minimum height for map visibility */
 }
 
 .map-card:hover {
@@ -108,8 +110,8 @@
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1;
-    background-color: #f0f2f5; /* Slightly darker to differentiate from white */
+    z-index: 5; /* Lower z-index so it doesn't block the map */
+    background-color: #f0f2f5; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -122,14 +124,37 @@
 
 #property-map, #full-property-map {
     position: relative;
-    z-index: 2;
+    z-index: 10; /* Higher z-index to ensure it's visible */
     border-radius: 0.5rem;
+    height: 100%; /* Ensure it takes full height */
+    width: 100%;
+    background-color: #f8f9fa; /* Light background in case map doesn't load */
+}
+
+#property-map {
+    height: 200px !important;
 }
 
 #full-property-map {
     border-radius: 0.75rem;
     box-shadow: var(--card-shadow);
     height: 600px !important;
+    min-height: 400px; /* Ensure minimum height even on smaller screens */
+}
+
+/* Override Google Maps UI elements to work better with our design */
+.gm-style {
+    font-family: var(--adla-font-secondary), sans-serif !important;
+}
+
+/* Fix issue where Google Maps controls might be missing */
+.gm-control-active, .gmnoprint, .gm-fullscreen-control {
+    z-index: 20 !important; /* Ensure controls are visible */
+}
+
+/* Make sure map appears on fullscreen view */
+.gm-style-pbc, .gm-style-pbt {
+    z-index: 30 !important;
 }
 
 /* Navigation tabs - fix for duplicate underlines */

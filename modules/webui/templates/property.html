@@ -650,15 +650,37 @@
         </div>
     </footer>
 
-    <!-- Google Maps JavaScript API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
-    
+    <!-- Store the stock number for the JavaScript -->
+    <script>
+        const STOCK_NUMBER = "{{ stock_number }}";
+    </script>
+
+    <!-- Bootstrap, property scripts and animations -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/property.js') }}"></script>
     <script src="{{ url_for('static', filename='js/premium-animations.js') }}"></script>
+    
+    <!-- Google Maps JavaScript API (loaded after our scripts) -->
     <script>
-        // Store the stock number for the JavaScript
-        const STOCK_NUMBER = "{{ stock_number }}";
+        // Fallback in case Google Maps fails to load
+        window.setTimeout(function() {
+            if (!window.google || !window.google.maps) {
+                console.error("Google Maps failed to load within timeout");
+                
+                document.querySelectorAll('#map-placeholder').forEach(function(placeholder) {
+                    placeholder.style.display = 'flex';
+                    const textElement = placeholder.querySelector('p');
+                    if (textElement) {
+                        textElement.textContent = 'Google Maps could not be loaded. Please refresh the page.';
+                    }
+                });
+                
+                document.querySelectorAll('#property-map, #full-property-map').forEach(function(map) {
+                    map.style.display = 'none';
+                });
+            }
+        }, 10000);  // 10-second timeout
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
 </body>
 </html> 

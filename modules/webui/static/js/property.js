@@ -28,6 +28,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up opportunity tab event listener
     document.getElementById('opportunity-tab')?.addEventListener('shown.bs.tab', loadOpportunityVisualizations);
+    
+    // Make sure the map refreshes when the tab is shown - this is critical for Google Maps to render correctly
+    document.getElementById('fullmap-tab')?.addEventListener('shown.bs.tab', function() {
+        if (fullPropertyMap && propertyData && propertyData.map) {
+            setTimeout(function() {
+                google.maps.event.trigger(fullPropertyMap, 'resize');
+                fullPropertyMap.setCenter({
+                    lat: parseFloat(propertyData.map.latitude),
+                    lng: parseFloat(propertyData.map.longitude)
+                });
+            }, 50);
+        }
+    });
 });
 
 // Load property data from API
@@ -264,96 +277,130 @@ function renderCategoryTable(elementId, categoryData) {
 
 // Initialize Google Maps for property location
 let mapsLoaded = false;
+let mapLoadAttempts = 0;
+const MAX_MAP_LOAD_ATTEMPTS = 5;
+
 function initMap() {
+    console.log("Google Maps API loaded");
     mapsLoaded = true;
-    // Maps will be initialized when data is loaded
+    
+    // Check if we already have data and need to initialize maps
+    if (propertyData && propertyData.map) {
+        initializePropertyMap(propertyData.map.latitude, propertyData.map.longitude);
+    }
 }
 
 // Initialize the property map with coordinates
 function initializePropertyMap(latitude, longitude) {
     if (!mapsLoaded) {
         // If Google Maps isn't loaded yet, wait a bit and retry
-        setTimeout(() => initializePropertyMap(latitude, longitude), 500);
+        if (mapLoadAttempts < MAX_MAP_LOAD_ATTEMPTS) {
+            mapLoadAttempts++;
+            console.log(`Waiting for Google Maps to load (attempt ${mapLoadAttempts})...`);
+            setTimeout(() => initializePropertyMap(latitude, longitude), 1000);
+        } else {
+            console.error("Failed to load Google Maps after multiple attempts");
+            document.getElementById('map-placeholder').style.display = 'flex';
+            document.getElementById('property-map').style.display = 'none';
+            document.getElementById('map-placeholder').querySelector('p').textContent = 'Map could not be loaded. Please refresh the page.';
+        }
         return;
     }
     
-    // Hide placeholder
-    document.getElementById('map-placeholder').style.display = 'none';
-    document.getElementById('property-map').style.display = 'block';
+    console.log("Initializing map with coordinates:", latitude, longitude);
     
-    const propertyLocation = { lat: latitude, lng: longitude };
-    
-    // Small map in the header
-    propertyMap = new google.maps.Map(document.getElementById('property-map'), {
-        center: propertyLocation,
-        zoom: 14,
-        mapTypeId: google.maps.MapTypeId.HYBRID,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-        zoomControl: false
-    });
-    
-    // Full interactive map
-    fullPropertyMap = new google.maps.Map(document.getElementById('full-property-map'), {
-        center: propertyLocation,
-        zoom: 16,
-        mapTypeId: google.maps.MapTypeId.HYBRID,
-        mapTypeControl: true,
-        streetViewControl: true,
-        fullscreenControl: true
-    });
-    
-    // Create marker for both maps
-    propertyMarker = new google.maps.Marker({
-        position: propertyLocation,
-        map: propertyMap,
-        title: `Property ${propertyData.summary.stockNumber}`,
-        animation: google.maps.Animation.DROP
-    });
-    
-    // Add marker to the full map
-    const fullMapMarker = new google.maps.Marker({
-        position: propertyLocation,
-        map: fullPropertyMap,
-        title: `Property ${propertyData.summary.stockNumber}`,
-        animation: google.maps.Animation.DROP
-    });
-    
-    // Store marker for later reference
-    fullPropertyMap.markers = [fullMapMarker];
-    
-    // Add info window to the full map marker
-    const infoContent = `
-        <div style="padding: 10px; max-width: 250px;">
-            <h5 style="margin-top: 0; color: #0062cc; font-weight: bold;">${propertyData.summary.stockNumber}</h5>
-            <p style="margin-bottom: 8px;"><strong>Location:</strong> ${propertyData.summary.location}</p>
-            <p style="margin-bottom: 8px;"><strong>Price:</strong> ${propertyData.summary.price}</p>
-            <p style="margin-bottom: 8px;"><strong>Area:</strong> ${propertyData.summary.acres} acres</p>
-            <div style="margin-top: 8px; padding: 5px; background-color: #17a2b8; color: white; border-radius: 4px; text-align: center;">
-                <strong>Score:</strong> ${propertyData.summary.score}
+    try {
+        // Ensure coordinates are valid numbers
+        latitude = parseFloat(latitude);
+        longitude = parseFloat(longitude);
+        
+        if (isNaN(latitude) || isNaN(longitude)) {
+            throw new Error("Invalid coordinates");
+        }
+        
+        const propertyLocation = { lat: latitude, lng: longitude };
+        
+        // Hide placeholder and show map
+        document.getElementById('map-placeholder').style.display = 'none';
+        document.getElementById('property-map').style.display = 'block';
+        
+        // Small map in the header
+        propertyMap = new google.maps.Map(document.getElementById('property-map'), {
+            center: propertyLocation,
+            zoom: 14,
+            mapTypeId: google.maps.MapTypeId.HYBRID,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+            zoomControl: false
+        });
+        
+        // Full interactive map
+        fullPropertyMap = new google.maps.Map(document.getElementById('full-property-map'), {
+            center: propertyLocation,
+            zoom: 16,
+            mapTypeId: google.maps.MapTypeId.HYBRID,
+            mapTypeControl: true,
+            streetViewControl: true,
+            fullscreenControl: true
+        });
+        
+        // Create marker for both maps
+        propertyMarker = new google.maps.Marker({
+            position: propertyLocation,
+            map: propertyMap,
+            title: `Property ${propertyData.summary.stockNumber}`,
+            animation: google.maps.Animation.DROP
+        });
+        
+        // Add marker to the full map
+        const fullMapMarker = new google.maps.Marker({
+            position: propertyLocation,
+            map: fullPropertyMap,
+            title: `Property ${propertyData.summary.stockNumber}`,
+            animation: google.maps.Animation.DROP
+        });
+        
+        // Store marker for later reference
+        fullPropertyMap.markers = [fullMapMarker];
+        
+        // Add info window to the full map marker
+        const infoContent = `
+            <div style="padding: 10px; max-width: 250px;">
+                <h5 style="margin-top: 0; color: var(--primary-color); font-weight: bold;">${propertyData.summary.stockNumber}</h5>
+                <p style="margin-bottom: 8px;"><strong>Location:</strong> ${propertyData.summary.location}</p>
+                <p style="margin-bottom: 8px;"><strong>Price:</strong> ${propertyData.summary.price}</p>
+                <p style="margin-bottom: 8px;"><strong>Area:</strong> ${propertyData.summary.acres} acres</p>
+                <div style="margin-top: 8px; padding: 5px; background-color: var(--primary-color); color: white; border-radius: 4px; text-align: center;">
+                    <strong>Score:</strong> ${propertyData.summary.score}
+                </div>
             </div>
-        </div>
-    `;
-    
-    const infoWindow = new google.maps.InfoWindow({
-        content: infoContent,
-        maxWidth: 300
-    });
-    
-    // Add click listener to marker to show info window
-    fullMapMarker.addListener('click', function() {
+        `;
+        
+        const infoWindow = new google.maps.InfoWindow({
+            content: infoContent,
+            maxWidth: 300
+        });
+        
+        // Add click listener to marker to show info window
+        fullMapMarker.addListener('click', function() {
+            infoWindow.open(fullPropertyMap, fullMapMarker);
+        });
+        
+        // Show info window by default
         infoWindow.open(fullPropertyMap, fullMapMarker);
-    });
-    
-    // Show info window by default
-    infoWindow.open(fullPropertyMap, fullMapMarker);
-    
-    // Add event listener to update full map when tab is shown
-    document.getElementById('fullmap-tab').addEventListener('shown.bs.tab', function(e) {
+        
+        // Make sure map is properly sized
+        google.maps.event.trigger(propertyMap, 'resize');
         google.maps.event.trigger(fullPropertyMap, 'resize');
-        fullPropertyMap.setCenter(propertyLocation);
-    });
+        
+        console.log("Maps initialized successfully");
+    } catch (error) {
+        console.error("Error initializing maps:", error);
+        document.getElementById('map-placeholder').style.display = 'flex';
+        document.getElementById('property-map').style.display = 'none';
+        document.getElementById('map-placeholder').querySelector('p').textContent = 'Error loading map: ' + error.message;
+    }
 }
 
 // Set map type (satellite or terrain)
