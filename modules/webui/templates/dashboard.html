@@ -19,7 +19,7 @@
             <div class="container-fluid">
                 <span class="navbar-brand">
                     <div class="brand-logo">
-                        <img src="{{ url_for('static', filename='../logo.png') }}" alt="ADLA Logo">
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="ADLA Logo">
                         <div class="brand-text">
                             <div class="brand-title">ADLA</div>
                             <div class="brand-subtitle">Automated Data-Led Land Analysis</div>
@@ -52,15 +52,15 @@
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0 card-title"><i class="bi bi-building me-2"></i>Property Listings</h4>
-                        <div id="filter-buttons" class="btn-group">
-                            <button id="all-filter" class="btn btn-primary active">
+                        <h4 class="mb-0 card-title text-dark"><i class="bi bi-building me-2 text-accent"></i>Property Listings</h4>
+                        <div id="filter-buttons" class="btn-group gap-2">
+                            <button id="all-filter" class="btn btn-accent active">
                                 <i class="bi bi-grid-3x3 me-1"></i> All Listings
                             </button>
-                            <button id="priced-filter" class="btn btn-outline-primary">
+                            <button id="priced-filter" class="btn btn-outline-dark">
                                 <i class="bi bi-tag me-1"></i> Priced Listings
                             </button>
-                            <button id="nonpriced-filter" class="btn btn-outline-primary">
+                            <button id="nonpriced-filter" class="btn btn-outline-dark">
                                 <i class="bi bi-tags me-1"></i> Non-Priced Listings
                             </button>
                         </div>
@@ -90,8 +90,8 @@
                         <div class="table-responsive">
                             <table id="listings-table" class="table table-hover">
                                 <thead>
-                                    <tr>
-                                        <th><i class="bi bi-tag-fill me-1"></i>Stock #</th>
+                                    <tr class="text-dark">
+                                        <th><i class="bi bi-tag-fill me-1 text-accent"></i>Stock #</th>
                                         <th>Sale Price</th>
                                         <th>Acres</th>
                                         <th>Price/Acre</th>
@@ -203,7 +203,7 @@
             <div class="row py-4">
                 <div class="col-md-6 text-center text-md-start">
                     <div class="brand-logo mb-3">
-                        <img src="{{ url_for('static', filename='../logo.png') }}" alt="ADLA Logo" style="height: 30px;">
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="ADLA Logo" style="height: 30px;">
                         <div class="brand-text">
                             <div class="brand-title">ADLA</div>
                         </div>

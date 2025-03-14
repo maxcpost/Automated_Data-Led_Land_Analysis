@@ -262,6 +262,11 @@ header {
   margin-bottom: 0.5rem;
 }
 
+/* Specific dark text override for card titles */
+.card-title.text-dark {
+  color: var(--adla-dark) !important;
+}
+
 .card-body {
   padding: 1.5rem;
 }
@@ -352,26 +357,24 @@ header {
 }
 
 .btn-outline-dark {
-  border-color: var(--adla-white);
-  color: var(--adla-white);
+  border-color: var(--adla-dark);
+  color: var(--adla-dark);
   background-color: transparent;
 }
 
 .btn-outline-dark:hover {
-  background-color: var(--adla-white);
-  border-color: var(--adla-white);
-  color: var(--adla-dark);
+  background-color: var(--adla-dark);
+  border-color: var(--adla-dark);
+  color: var(--adla-white);
 }
 
-.btn-group .btn {
-  box-shadow: none;
+/* Add class for filter button group spacing */
+.btn-group.gap-2 .btn {
+  margin-right: 0.5rem;
 }
 
-.btn-group .btn.active {
-  background-color: var(--adla-accent);
-  border-color: var(--adla-accent);
-  color: var(--adla-dark);
-  font-weight: 600;
+.btn-group.gap-2 .btn:last-child {
+  margin-right: 0;
 }
 
 /* ===== FORM ELEMENTS ===== */
@@ -424,6 +427,23 @@ header {
 
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: rgba(14, 31, 48, 0.02);
+}
+
+/* Dark text headers for listings table */
+.text-dark th {
+  color: var(--adla-dark);
+}
+
+/* Button group style overrides */
+.btn-group .btn {
+  box-shadow: none;
+}
+
+.btn-group .btn.active {
+  background-color: var(--adla-accent);
+  border-color: var(--adla-accent);
+  color: var(--adla-dark);
+  font-weight: 600;
 }
 
 /* ===== BADGES & INDICATORS ===== */
