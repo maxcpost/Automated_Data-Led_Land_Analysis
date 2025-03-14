@@ -42,9 +42,28 @@
     font-weight: 600;
 }
 
-/* Composite score card - dark blue */
+/* Composite score card - dark blue text on light background */
 .row .col-md-4 .card.bg-dark {
-    background-color: var(--primary-color) !important;
+    background-color: white !important;
+    border: 2px solid var(--primary-color) !important;
+}
+
+.row .col-md-4 .card.bg-dark .card-title,
+.row .col-md-4 .card.bg-dark .card-subtitle,
+.row .col-md-4 .card.bg-dark * {
+    color: var(--primary-color) !important;
+}
+
+/* Change the subtitle to slightly lighter blue for better hierarchy */
+.row .col-md-4 .card.bg-dark .card-subtitle {
+    color: var(--info-color) !important;
+    opacity: 0.9;
+}
+
+/* Make the value stand out */
+.row .col-md-4 .card.bg-dark .card-title {
+    font-weight: 700;
+    color: var(--primary-color) !important;
 }
 
 /* Summary cards - Fixing white blocks on white backgrounds */
@@ -501,9 +520,4 @@ a:hover {
 
 .nav-tabs .nav-link.active::after {
     background-color: var(--accent-color);
-}
-
-/* Make composite score card dark blue */
-.row .col-md-4 .card.bg-dark {
-    background-color: var(--primary-color) !important;
 } 
