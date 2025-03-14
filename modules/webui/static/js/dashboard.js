@@ -65,7 +65,7 @@ function loadListings(filter) {
     document.getElementById('listings-data').innerHTML = `
         <tr>
             <td colspan="9" class="text-center">
-                <div class="spinner-border text-primary my-5" role="status">
+                <div class="spinner-border text-accent my-5" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
                 <p class="mt-2">Loading property data...</p>
