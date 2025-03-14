@@ -147,20 +147,26 @@
     transition: color 0.2s ease;
 }
 
+/* Single underline styling that only appears on active or hover */
 .nav-tabs .nav-link::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%); /* Center the underline */
+    width: 0; /* Start with no width */
     height: 3px;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
+    background-color: var(--accent-color);
+    transition: width 0.2s ease;
 }
 
 .nav-tabs .nav-link:hover {
     color: var(--accent-color);
     border: none;
+}
+
+.nav-tabs .nav-link:hover::after {
+    width: 80%; /* Expand width on hover */
 }
 
 .nav-tabs .nav-link.active {
@@ -170,7 +176,7 @@
 }
 
 .nav-tabs .nav-link.active::after {
-    background-color: var(--accent-color);
+    width: 80%; /* Consistent width with hover */
 }
 
 /* Pills style for demographics sub-tabs */
