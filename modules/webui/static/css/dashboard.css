@@ -1,14 +1,14 @@
 /* Dashboard styles - High-tech version */
 :root {
-    --primary-color: #0062cc;
-    --primary-dark: #004a9f;
-    --primary-light: #e6f0ff;
-    --accent-color: #00c9a7;
-    --dark-color: #2c3e50;
+    --primary-color: #0f3a62; /* Deep navy blue from NewVision brand */
+    --primary-dark: #081622; 
+    --primary-light: #f0f2f5; /* Light background color */
+    --accent-color: #e9b64a; /* Golden accent color from NewVision */
+    --dark-color: #242b3a;
     --light-color: #f8f9fc;
     --success-color: #28a745;
-    --warning-color: #ffc107;
-    --info-color: #17a2b8;
+    --warning-color: #e9b64a; /* Standardized warning to match accent */
+    --info-color: #3672a4; /* Changed from light blue to medium blue */
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     --transition-speed: 0.3s;
 }
@@ -47,7 +47,7 @@ body {
 
 .card-header {
     font-weight: 600;
-    background-color: white;
+    background-color: var(--light-color); /* Changed from white to light color */
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     padding: 1rem 1.25rem;
 }

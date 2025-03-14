@@ -1,23 +1,23 @@
 /* Property detail page styles - High-tech version */
 
-/* Use the same variables defined in dashboard.css */
+/* Use standardized variables for consistent colors */
 :root {
-    --primary-color: #0062cc;
-    --primary-dark: #004a9f;
-    --primary-light: #e6f0ff;
-    --accent-color: #00c9a7;
-    --dark-color: #2c3e50;
+    --primary-color: #0e1f30; /* Changed from light blue to dark blue to match newvision theme */
+    --primary-dark: #081622;
+    --primary-light: #f0f2f5; /* Less blue tint */
+    --accent-color: #e9b64a; /* Standard yellow/gold from newvision-brand */
+    --dark-color: #242b3a;
     --light-color: #f8f9fc;
     --success-color: #28a745;
-    --warning-color: #ffc107;
-    --info-color: #17a2b8;
+    --warning-color: #e9b64a; /* Standardized warning to match accent */
+    --info-color: #3672a4; /* Changed from light blue to darker blue */
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     --transition-speed: 0.3s;
 }
 
 /* Header styles */
 #property-stock-number {
-    color: var(--primary-color);
+    color: var(--accent-color); /* Changed from primary-color to accent-color */
     font-weight: 700;
     letter-spacing: -0.5px;
 }
@@ -27,7 +27,7 @@
     color: #5a6a7e;
 }
 
-/* Summary cards */
+/* Summary cards - Fixing white blocks on white backgrounds */
 .card .card-body.py-2 {
     padding: 1rem;
     border-radius: 0.5rem;
@@ -45,8 +45,9 @@
     margin-top: 0.25rem;
 }
 
+/* Change light blue gradient to darker blue */
 .bg-info {
-    background: linear-gradient(135deg, var(--info-color), #1395a9) !important;
+    background: linear-gradient(135deg, #3672a4, #0f3a62) !important;
 }
 
 /* Map styling */
@@ -69,7 +70,7 @@
     left: 0;
     width: 100%;
     z-index: 1;
-    background-color: #f8f9fb;
+    background-color: #f0f2f5; /* Slightly darker to differentiate from white */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -92,7 +93,7 @@
     height: 600px !important;
 }
 
-/* Navigation tabs */
+/* Navigation tabs - Remove light blue hover/selected effects */
 .nav-tabs {
     border-bottom: none;
 }
@@ -119,18 +120,18 @@
 }
 
 .nav-tabs .nav-link:hover {
-    color: var(--primary-color);
+    color: var(--accent-color); /* Changed from primary-color to accent-color */
     border: none;
 }
 
 .nav-tabs .nav-link.active {
-    color: var(--primary-color);
+    color: var(--accent-color); /* Changed from primary-color to accent-color */
     background-color: transparent;
     border: none;
 }
 
 .nav-tabs .nav-link.active::after {
-    background-color: var(--primary-color);
+    background-color: var(--accent-color); /* Changed from primary-color to accent-color */
 }
 
 /* Pills style for demographics sub-tabs */
@@ -144,10 +145,11 @@
 }
 
 .nav-pills .nav-link.active {
-    background-color: var(--primary-color);
+    background-color: var(--accent-color); /* Changed from primary-color to accent-color */
+    color: #242b3a; /* Dark text on yellow background for better contrast */
 }
 
-/* Data table styles */
+/* Data table styles - Make alternating rows more distinct */
 .table-responsive {
     max-height: 500px;
     overflow-y: auto;
@@ -158,7 +160,7 @@
 .table th {
     position: sticky;
     top: 0;
-    background-color: #f8f9fa;
+    background-color: #f0f2f5; /* Slightly darker to differentiate from white */
     z-index: 1;
     font-weight: 600;
     color: var(--dark-color);
@@ -169,7 +171,7 @@
 }
 
 .table td {
-    border-color: #f0f0f5;
+    border-color: #e9ecef; /* Darker border for better separation */
     padding: 0.75rem 1rem;
 }
 
@@ -178,7 +180,7 @@
     color: var(--dark-color);
 }
 
-/* Section headings */
+/* Section headings - Change blue underline to yellow */
 h5.border-bottom {
     position: relative;
     padding-bottom: 0.75rem;
@@ -194,10 +196,10 @@ h5.border-bottom::after {
     bottom: 0;
     height: 3px;
     width: 50px;
-    background-color: var(--primary-color);
+    background-color: var(--accent-color); /* Changed from primary-color to accent-color */
 }
 
-/* Analytics explanations */
+/* Analytics explanations - change blue border to yellow */
 dl dt {
     font-weight: 700;
     margin-top: 1.5rem;
@@ -208,20 +210,49 @@ dl dt {
 dl dd {
     margin-bottom: 1.5rem;
     padding-left: 1rem;
-    border-left: 3px solid var(--primary-light);
+    border-left: 3px solid var(--accent-color); /* Changed from primary-light to accent-color */
     color: #5a6a7e;
     line-height: 1.6;
 }
 
-/* Alert styling */
+/* Alert styling - remove light blue */
 .alert-info {
-    background-color: var(--primary-light);
-    border-color: var(--primary-light);
-    color: var(--primary-dark);
+    background-color: #f8f9fa; /* Changed from primary-light to a neutral light color */
+    border-color: #e9ecef;
+    color: var(--dark-color);
 }
 
 .alert-info i {
-    color: var(--primary-color);
+    color: var(--accent-color); /* Changed from primary-color to accent-color */
+}
+
+/* Fix nested white cards to have gray backgrounds */
+.card .card-body .card.bg-light {
+    background-color: #f0f2f5 !important; /* Slightly darker background for nested cards */
+}
+
+/* Make sure all badges with accent/warning colors are consistent */
+.badge.bg-accent, 
+.badge.bg-warning, 
+.progress-bar.bg-accent,
+.progress-bar.bg-warning {
+    background-color: var(--accent-color) !important; 
+    color: var(--dark-color) !important;
+}
+
+/* Opportunity factor progress bars */
+.progress-bar.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.progress-bar.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+/* Hover effects on tables - change blue tint to subtle gray */
+#listings-table tbody tr:hover {
+    background-color: rgba(233, 236, 239, 0.5) !important;
+    cursor: pointer;
 }
 
 /* Responsive adjustments */
@@ -248,13 +279,104 @@ dl dd {
     }
     
     .nav-pills {
-        overflow-x: auto;
-        white-space: nowrap;
+        display: flex;
         flex-wrap: nowrap;
+        overflow-x: auto;
         padding-bottom: 0.5rem;
     }
     
     .nav-pills .nav-item {
-        display: inline-block;
+        flex: 0 0 auto;
     }
+}
+
+/* Add additional rules for buttons and links to ensure consistent coloring */
+
+/* Buttons with accent coloring */
+.btn-accent {
+    background-color: var(--accent-color);
+    color: var(--dark-color);
+    border-color: var(--accent-color);
+}
+
+.btn-accent:hover,
+.btn-accent:focus {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+    border-color: var(--warning-color);
+    box-shadow: 0 0 0 0.25rem rgba(233, 182, 74, 0.25);
+}
+
+.btn-outline-accent {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-accent:hover,
+.btn-outline-accent:focus {
+    background-color: var(--accent-color);
+    color: var(--dark-color);
+}
+
+/* Ensure all brand color elements use the NewVision colors */
+.text-accent {
+    color: var(--accent-color) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* Additional improvements for nested cards */
+.card .card-body .card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card .card-body .card:hover {
+    transform: translateY(-3px);
+}
+
+/* Ensure all blue underlines are removed */
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--warning-color);
+    text-decoration: none;
+}
+
+/* Stock number styling */
+#property-stock-number,
+#header-stock-number {
+    color: var(--accent-color) !important;
+    font-weight: 600;
+}
+
+/* Make sure all charts use the right color scheme */
+.chart-container canvas {
+    max-width: 100%;
+}
+
+/* Style adjustments for demographic pills */
+.nav-pills .nav-link {
+    color: var(--dark-color);
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: rgba(233, 182, 74, 0.1);
+}
+
+/* Consistent progress bar colors */
+.progress-bar.bg-accent {
+    background-color: var(--accent-color) !important;
+}
+
+.progress-bar.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.card-body {
+    background-color: white;
 } 
