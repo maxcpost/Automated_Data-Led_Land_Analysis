@@ -439,11 +439,30 @@ header {
   box-shadow: none;
 }
 
-.btn-group .btn.active {
-  background-color: var(--adla-accent);
-  border-color: var(--adla-accent);
-  color: var(--adla-dark);
+/* Styles for filter buttons in the dashboard */
+#filter-buttons .btn-primary, 
+#filter-buttons .btn.active {
+  background-color: var(--adla-accent) !important;
+  border-color: var(--adla-accent) !important;
+  color: var(--adla-dark) !important;
   font-weight: 600;
+}
+
+#filter-buttons .btn-outline-primary,
+#filter-buttons .btn:not(.active) {
+  border-color: var(--adla-dark) !important;
+  color: var(--adla-dark) !important;
+  background-color: transparent !important;
+}
+
+#filter-buttons .btn:not(.active):hover {
+  background-color: rgba(14, 31, 48, 0.1) !important;
+  border-color: var(--adla-dark) !important;
+}
+
+/* Additional styling for proper spacing in button groups */
+#filter-buttons.btn-group .btn + .btn {
+  margin-left: 0.5rem !important;
 }
 
 /* ===== BADGES & INDICATORS ===== */
@@ -767,6 +786,11 @@ a:hover {
 
 /* Override Bootstrap's primary color */
 .text-primary {
+  color: var(--adla-accent) !important;
+}
+
+/* Ensure spinners always use accent color */
+.spinner-border.text-primary {
   color: var(--adla-accent) !important;
 }
 
