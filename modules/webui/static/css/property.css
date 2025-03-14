@@ -231,6 +231,70 @@ dl dd {
     background-color: #f0f2f5 !important; /* Slightly darker background for nested cards */
 }
 
+/* Add borders to nested white cards for better separation */
+.card .card-body .card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--primary-color) !important; /* Add dark blue border */
+}
+
+.card .card-body .card:hover {
+    transform: translateY(-3px);
+}
+
+/* Ensure proper contrast for text in all contexts */
+.card-title, .card-header h5 {
+    color: var(--dark-color) !important;
+}
+
+/* Add subtle dividers between sections to improve visual hierarchy */
+.row + .row {
+    margin-top: 1.5rem;
+    padding-top: 0.5rem;
+}
+
+/* Make sure all headings have proper contrast */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--dark-color);
+}
+
+/* Make card headers more distinct with border bottom */
+.card-header {
+    border-bottom: 2px solid var(--primary-color) !important;
+}
+
+/* Make nested white elements more distinct */
+.card-body .table, 
+.card-body .alert,
+.card-body .visualization-container {
+    border: 1px solid rgba(15, 58, 98, 0.2); /* Subtle dark blue border */
+    border-radius: 0.5rem;
+}
+
+/* Fix specific nested card issue in Property Overview section */
+#property-overview .card {
+    border: 1px solid var(--primary-color) !important;
+}
+
+/* Fix the property score card to ensure text is visible */
+#property-overview .badge {
+    border: 1px solid rgba(15, 58, 98, 0.2); /* Subtle border for badges */
+}
+
+/* Ensure text contrast in dark bg elements */
+.bg-dark, .card.bg-dark {
+    color: white !important;
+}
+
+.bg-dark h1, .bg-dark h2, .bg-dark h3, .bg-dark h4, .bg-dark h5, .bg-dark h6,
+.card.bg-dark h1, .card.bg-dark h2, .card.bg-dark h3, .card.bg-dark h4, .card.bg-dark h5, .card.bg-dark h6 {
+    color: white !important;
+}
+
+/* Fix any remaining white-on-white issues */
+.card-body .card-body {
+    background-color: #f8f9fa;
+}
+
 /* Make sure all badges with accent/warning colors are consistent */
 .badge.bg-accent, 
 .badge.bg-warning, 
@@ -327,13 +391,26 @@ dl dd {
     color: var(--primary-color) !important;
 }
 
-/* Additional improvements for nested cards */
-.card .card-body .card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+/* Style adjustments for demographic pills */
+.nav-pills .nav-link {
+    color: var(--dark-color);
 }
 
-.card .card-body .card:hover {
-    transform: translateY(-3px);
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: rgba(233, 182, 74, 0.1);
+}
+
+/* Consistent progress bar colors */
+.progress-bar.bg-accent {
+    background-color: var(--accent-color) !important;
+}
+
+.progress-bar.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.card-body {
+    background-color: white;
 }
 
 /* Ensure all blue underlines are removed */
@@ -357,26 +434,4 @@ a:hover {
 /* Make sure all charts use the right color scheme */
 .chart-container canvas {
     max-width: 100%;
-}
-
-/* Style adjustments for demographic pills */
-.nav-pills .nav-link {
-    color: var(--dark-color);
-}
-
-.nav-pills .nav-link:hover:not(.active) {
-    background-color: rgba(233, 182, 74, 0.1);
-}
-
-/* Consistent progress bar colors */
-.progress-bar.bg-accent {
-    background-color: var(--accent-color) !important;
-}
-
-.progress-bar.bg-primary {
-    background-color: var(--primary-color) !important;
-}
-
-.card-body {
-    background-color: white;
 } 
