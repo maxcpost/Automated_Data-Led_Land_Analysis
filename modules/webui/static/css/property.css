@@ -17,7 +17,7 @@
 
 /* Header styles */
 #property-stock-number {
-    color: var(--accent-color); /* Changed from primary-color to accent-color */
+    color: var(--primary-color) !important; /* Changed to dark blue */
     font-weight: 700;
     letter-spacing: -0.5px;
 }
@@ -25,6 +25,26 @@
 #property-location {
     font-weight: 400;
     color: #5a6a7e;
+}
+
+/* Title and heading colors */
+#property-detail h3,
+#property-detail h2,
+.dashboard-header h1 {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+}
+
+/* Stock number in header badge */
+#header-stock-number {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+/* Composite score card - dark blue */
+.row .col-md-4 .card.bg-dark {
+    background-color: var(--primary-color) !important;
 }
 
 /* Summary cards - Fixing white blocks on white backgrounds */
@@ -93,7 +113,7 @@
     height: 600px !important;
 }
 
-/* Navigation tabs - Remove light blue hover/selected effects */
+/* Navigation tabs - fix for duplicate underlines */
 .nav-tabs {
     border-bottom: none;
 }
@@ -120,18 +140,18 @@
 }
 
 .nav-tabs .nav-link:hover {
-    color: var(--accent-color); /* Changed from primary-color to accent-color */
+    color: var(--accent-color);
     border: none;
 }
 
 .nav-tabs .nav-link.active {
-    color: var(--accent-color); /* Changed from primary-color to accent-color */
+    color: var(--accent-color);
     background-color: transparent;
     border: none;
 }
 
 .nav-tabs .nav-link.active::after {
-    background-color: var(--accent-color); /* Changed from primary-color to accent-color */
+    background-color: var(--accent-color);
 }
 
 /* Pills style for demographics sub-tabs */
@@ -427,11 +447,63 @@ a:hover {
 /* Stock number styling */
 #property-stock-number,
 #header-stock-number {
-    color: var(--accent-color) !important;
+    color: var(--primary-color) !important;
     font-weight: 600;
 }
 
 /* Make sure all charts use the right color scheme */
 .chart-container canvas {
     max-width: 100%;
+}
+
+/* Make stock number dark blue instead of accent color */
+#header-stock-number {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Fix duplicate underlines in tabs */
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    font-weight: 600;
+    color: #6c757d;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 0;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.nav-tabs .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--accent-color);
+    border: none;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--accent-color);
+    background-color: transparent;
+    border: none;
+}
+
+.nav-tabs .nav-link.active::after {
+    background-color: var(--accent-color);
+}
+
+/* Make composite score card dark blue */
+.row .col-md-4 .card.bg-dark {
+    background-color: var(--primary-color) !important;
 } 
