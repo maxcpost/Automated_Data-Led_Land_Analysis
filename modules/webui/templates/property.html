@@ -654,6 +654,15 @@
     <script>
         const STOCK_NUMBER = "{{ stock_number }}";
         const GOOGLE_MAPS_API_KEY = "{{ google_maps_api_key }}";
+        
+        // Debug Google Maps API key
+        console.log("Google Maps API Key length: " + (GOOGLE_MAPS_API_KEY ? GOOGLE_MAPS_API_KEY.length : 0) + " characters");
+        console.log("Google Maps API Key first 4 chars: " + (GOOGLE_MAPS_API_KEY ? GOOGLE_MAPS_API_KEY.substring(0, 4) : "none"));
+        
+        // Check if API key looks valid (basic format check)
+        if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY.length < 20 || GOOGLE_MAPS_API_KEY === "{{ google_maps_api_key }}") {
+            console.error("Google Maps API key appears invalid or missing");
+        }
     </script>
 
     <!-- Bootstrap, property scripts and animations -->
@@ -666,16 +675,30 @@
         // Fallback in case Google Maps fails to load
         window.setTimeout(function() {
             if (!window.google || !window.google.maps) {
-                console.error("Google Maps failed to load within timeout");
+                console.error("Google Maps failed to load within timeout - checking API key");
                 
-                document.querySelectorAll('#map-placeholder').forEach(function(placeholder) {
-                    placeholder.style.display = 'flex';
-                    const textElement = placeholder.querySelector('p');
-                    if (textElement) {
-                        textElement.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Google Maps could not be loaded. Please refresh the page.';
-                        textElement.style.color = '#dc3545';
-                    }
-                });
+                // Try to diagnose the issue
+                if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY.length < 20 || GOOGLE_MAPS_API_KEY === "{{ google_maps_api_key }}") {
+                    console.error("API key issue detected: API key is missing or invalid");
+                    document.querySelectorAll('#map-placeholder').forEach(function(placeholder) {
+                        placeholder.style.display = 'flex';
+                        const textElement = placeholder.querySelector('p');
+                        if (textElement) {
+                            textElement.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Map API key is invalid or missing. Please contact support.';
+                            textElement.style.color = '#dc3545';
+                        }
+                    });
+                } else {
+                    console.error("API key looks valid, but Maps failed to load for another reason");
+                    document.querySelectorAll('#map-placeholder').forEach(function(placeholder) {
+                        placeholder.style.display = 'flex';
+                        const textElement = placeholder.querySelector('p');
+                        if (textElement) {
+                            textElement.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Google Maps could not be loaded. Please refresh the page.';
+                            textElement.style.color = '#dc3545';
+                        }
+                    });
+                }
                 
                 document.querySelectorAll('#property-map, #full-property-map').forEach(function(map) {
                     map.style.display = 'none';
@@ -683,6 +706,6 @@
             }
         }, 10000);  // 10-second timeout
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&v=weekly"></script>
 </body>
 </html> 

@@ -13,6 +13,13 @@ let mapLoadStartTime = null;
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM content loaded - initializing property page");
     
+    // Check API key first
+    if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY.length < 20) {
+        console.error("Invalid Google Maps API key detected on page load");
+        showMapError("Invalid Google Maps API key. Please check your configuration or contact support.");
+        return;
+    }
+    
     // Record when we start trying to load the map
     mapLoadStartTime = Date.now();
     
